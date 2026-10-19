@@ -1,7 +1,16 @@
 {
-  "name": "@meshcore-aspen/shared-room",
+  "name": "aspen-shared-room",
   "version": "0.1.0",
+  "description": "Cloudflare Worker that hosts shared MeshCore rooms for Aspen nodes",
+  "license": "Apache-2.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slepp/aspen-shared-room.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "dependencies": {
     "@simplewebauthn/server": "14.0.3",

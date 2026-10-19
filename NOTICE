@@ -1,0 +1,17 @@
+Aspen shared rooms
+Copyright 2026 Stephen Olesen (VE6SLP)
+
+Original project code is licensed under the Apache License, Version 2.0
+(LICENSE).
+
+The Worker follows MeshCore protocol behaviour, including the transport-code
+derivation, and includes work adapted from MeshCore, Copyright (c) 2025 Scott
+Powell / rippleradios.com, under the MIT License (LICENSES/MeshCore-MIT.txt).
+
+native/ vendors unchanged third-party sources that retain their own notices:
+- native/crypto: AES128 and SHA256 from Rhys Weatherley's Arduino Crypto 0.4.0
+  (MIT; each file carries its header).
+- native/ed25519: Orson Peters' ed25519 (zlib licence; native/ed25519/license.txt).
+
+npm dependencies keep their own licences; `npm ls` and package-lock.json
+identify them.

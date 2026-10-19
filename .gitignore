@@ -6,3 +6,5 @@ dist/
 web/app.js
 .deploy/
 wrangler.local.jsonc
+
+.tmp/

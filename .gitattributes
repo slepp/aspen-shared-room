@@ -1,0 +1,3 @@
+native/ed25519/** linguist-vendored whitespace=-blank-at-eol
+native/crypto/** linguist-vendored
+src/native-crypto.wasm linguist-generated
