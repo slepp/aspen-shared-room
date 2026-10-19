@@ -10,7 +10,7 @@ import time
 import tracemalloc
 import uuid
 
-root = Path(__file__).resolve().parents[3]
+root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument("--out", type=Path, default=root / ".tmp/wire-frames")
 parser.add_argument("--json-only", action="store_true", help="generate native parser fixtures without CBOR measurements")

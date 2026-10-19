@@ -7,7 +7,7 @@ ordinary room. You set it up from the companion app's Management console
 with `cloudroom` commands, and the node restarts ten seconds after each
 change. A node serves up to two rooms, and both share its one radio and TX
 scheduler. The generic `public_aspen` image includes the frontend; its
-[private initial setup](../../firmware/esp32/PUBLIC_SETUP.md) needs no room
+[private initial setup](https://github.com/slepp/meshcore-aspen/blob/main/firmware/esp32/PUBLIC_SETUP.md) needs no room
 settings. Shared rooms stay off until you join, create or convert one.
 
 ## Join, create or convert a room
@@ -270,7 +270,7 @@ Encrypted node backups include the frontend settings and credentials.
 Build and application-update the private frontend with current source first,
 keeping its existing configuration provider. Run `cloudroom config retain` and
 `cloudroom config status` alongside the
-[setup migration commands](../../firmware/esp32/PUBLIC_SETUP.md#move-an-initialized-private-build-to-a-generic-application).
+[setup migration commands](https://github.com/slepp/meshcore-aspen/blob/main/firmware/esp32/PUBLIC_SETUP.md#move-an-initialized-private-build-to-a-generic-application).
 Then application-update to `public_aspen`. The generic image loads the saved
 frontends after restart; it uses the existing authorities, identities and
 filesystem. A private provider still uses its compiled configuration until that
@@ -367,9 +367,11 @@ The generic image builds with native MeshCore
 Arduino 2.0.17 and ESP-IDF4.4.7, with Lua 5.5.1 and WAMR 2.4.1.
 
 ```sh
+# In a checkout of the Aspen firmware repository:
 make -C firmware/shared/cloudroom test
 make -C firmware/esp32 cloudroom-preferences-test
-cd services/shared-room
+
+# In this repository:
 npm run typecheck
 npm test
 npm run build

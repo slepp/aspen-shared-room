@@ -52,6 +52,7 @@ bounded JSON keeps one readable schema and a compact embedded parser.
 reference; those decoded envelopes are not the central-key transport.
 
 ```sh
+# In a checkout of the Aspen firmware repository
 make -C firmware/shared/cloudroom test
 ```
 

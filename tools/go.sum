@@ -1,0 +1,6 @@
+filippo.io/edwards25519 v1.2.0 h1:crnVqOiS4jqYleHd9vaKZ+HKtHfllngJIiOpNpoJsjo=
+filippo.io/edwards25519 v1.2.0/go.mod h1:xzAOLCNug/yB62zG1bQ8uziwrIqIuxhctzJT18Q77mc=
+github.com/meshcore-go/meshcore-go v1.5.0 h1:sNbGV1V7kf2ohP9WNTt6+WqKccEIB24BAOjS4I4b4vE=
+github.com/meshcore-go/meshcore-go v1.5.0/go.mod h1:fdsJJIFjtuqiX13cpKjUY7cg4YzeUBgceEz2sbtnhL8=
+golang.org/x/crypto v0.56.0 h1:GUh5Ii4J5jtcseSMiRqr1jXCNHoxjeV9Fmekc2oLy6Y=
+golang.org/x/crypto v0.56.0/go.mod h1:OMW5y6CY9l38uPLmxU6l6pwcXp1obtLo3e6gT7gQR2I=

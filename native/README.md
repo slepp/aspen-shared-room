@@ -21,8 +21,7 @@ Normal Worker builds use that binary and need no C toolchain. Rebuild with LLVM
 22.1.8 (including wasm-ld):
 
 ```sh
-WASM_CC=/path/to/llvm/bin/clang python3 services/shared-room/native/build.py
-cd services/shared-room
+WASM_CC=/path/to/llvm/bin/clang python3 native/build.py
 npm test
 npm run build
 ```

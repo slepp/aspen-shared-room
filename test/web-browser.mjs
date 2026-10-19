@@ -298,18 +298,21 @@ async function passkeysFlow(desktop, mobile) {
   for (const scheme of ["light", "dark"]) {
     await palette(third, scheme); await accessibility(third, scheme + " passkey conversation");
   }
-  const tuiRoot = resolve(root, "../../clients/room-tui"), binary = resolve(scratch, "room-tui");
-  const build = start("go", ["build", "-o", binary, "."], {cwd: tuiRoot});
-  await until(() => build.child.exitCode !== null, "TUI build", 60000);
-  assert.equal(build.child.exitCode, 0, build.output());
-  const cookies = await third.call("Network.getCookies", {urls: [base + "/v1/auth/"]});
-  const approver = cookies.cookies.find(cookie => cookie.name === "aspen_account");
-  assert(approver);
-  const terminal = start("python3", [resolve(tuiRoot, "test/terminal.py"), binary, base, resolve(scratch, "tui"), "--passkeys"],
-    {env: {...process.env, ASPEN_ROOM_TEST_APPROVER: approver.name + "=" + approver.value}});
-  await until(() => terminal.child.exitCode !== null, "TUI browser-passkey approval PTY", 60000);
-  assert.equal(terminal.child.exitCode, 0, terminal.output());
-  process.stdout.write(terminal.output());
+  // The terminal client lives in the Aspen firmware repository. Set ROOM_TUI_DIR to its clients/room-tui checkout to include it.
+  if (process.env.ROOM_TUI_DIR) {
+    const tuiRoot = resolve(process.env.ROOM_TUI_DIR), binary = resolve(scratch, "room-tui");
+    const build = start("go", ["build", "-o", binary, "."], {cwd: tuiRoot});
+    await until(() => build.child.exitCode !== null, "TUI build", 60000);
+    assert.equal(build.child.exitCode, 0, build.output());
+    const cookies = await third.call("Network.getCookies", {urls: [base + "/v1/auth/"]});
+    const approver = cookies.cookies.find(cookie => cookie.name === "aspen_account");
+    assert(approver);
+    const terminal = start("python3", [resolve(tuiRoot, "test/terminal.py"), binary, base, resolve(scratch, "tui"), "--passkeys"],
+      {env: {...process.env, ASPEN_ROOM_TEST_APPROVER: approver.name + "=" + approver.value}});
+    await until(() => terminal.child.exitCode !== null, "TUI browser-passkey approval PTY", 60000);
+    assert.equal(terminal.child.exitCode, 0, terminal.output());
+    process.stdout.write(terminal.output());
+  }
   assert.deepEqual(browserErrors, []); assert.deepEqual(errors, []);
   console.log("PASS: real browser WebAuthn registration/assertion with UV, distinct Ed25519 keys, five-minute QR/code inspection/approval/claim, persistent cookies/drafts, password disabled, mobile reflow and light/dark accessibility.");
 }

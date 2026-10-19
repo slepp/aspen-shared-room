@@ -92,5 +92,5 @@ must not decrypt or fabricate a desktop recipient ACK.
 Use the existing queued-v1 radio and native packet contracts; this plan adds
 no new over-air DM protocol. The initial work is a desktop/native library
 and a scoped tower API, not a change to room identities or room history.
-See [native service hooks](../../firmware/runtime/NATIVE_SERVICES.md) for the
+See [native service hooks](https://github.com/slepp/meshcore-aspen/blob/main/firmware/runtime/NATIVE_SERVICES.md) for the
 on-device boundary and [WEB.md](WEB.md) for the deployed room/device flow.

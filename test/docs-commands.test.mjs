@@ -6,12 +6,9 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {fileURLToPath} from "node:url";
 
-const repo = fileURLToPath(new URL("../../../", import.meta.url));
-const docs = [
-  "services/shared-room/SELF_HOSTING.md", "services/shared-room/NATIVE.md", "services/shared-room/README.md",
-  "services/shared-room/TRUST.md", "services/shared-room/WEB.md", "firmware/esp32/PUBLIC_SETUP.md",
-  "README.md", "ARCHITECTURE.md", "NODE_BACKUP.md", "SECURITY.md", "RELEASING.md", "release/README.md",
-];
+// The grammar mirrors the Aspen firmware's Management console. The firmware repository checks its own guides.
+const repo = fileURLToPath(new URL("../", import.meta.url));
+const docs = ["SELF_HOSTING.md", "NATIVE.md", "README.md", "TRUST.md", "WEB.md"];
 
 const placeholders = new Set(["CODE", "HOST", "ALIAS", "NAME", "PW", "ID", "N", "FILE"]);
 const wild = t => /[\[\]|{}]/.test(t) || placeholders.has(t.split("@")[0]) || placeholders.has(t.split("@")[1] ?? "") && t.includes("@");
@@ -85,7 +82,7 @@ test("documented cloudroom commands follow the Management grammar", async () => 
 });
 
 test("the node guide quotes the fixed reply texts", async () => {
-  const native = await readFile(repo + "services/shared-room/NATIVE.md", "utf8");
+  const native = await readFile(repo + "NATIVE.md", "utf8");
   for (const text of [
     "Code ABCD-EFGH-JKMN-PQRS (10 min, once). Run: cloudroom join ABCD-EFGH-JKMN-PQRS@",
     "Linked. Restarts in 10 s. Ask the room owner for the password. If the room is not in your app, run \"cloudroom advertise 1\".",
