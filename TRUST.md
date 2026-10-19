@@ -109,7 +109,7 @@ Prepare new test identities without reading existing radio identity storage:
 
 ```sh
 GOMODCACHE=/tmp/aspen-go-mod GOCACHE=/tmp/aspen-go-build \
-  go run services/shared-room/tools/create-test-setup.go --directory PRIVATE_DIRECTORY
+  go run tools/create-test-setup.go --directory PRIVATE_DIRECTORY
 ```
 
 The generator creates exclusive 0700/0600 files for two new test rooms and two
@@ -121,11 +121,11 @@ commit them, paste them into a conversation, or copy room keys to a frontend.
 Validate and upload with an operator-run local process:
 
 ```sh
-node services/shared-room/tools/configure.mjs \
+node tools/configure.mjs \
   --file PRIVATE_DIRECTORY/service-config.json \
   --keys PRIVATE_DIRECTORY/worker-room-keys.json --validate
 
-node services/shared-room/tools/configure.mjs \
+node tools/configure.mjs \
   --file PRIVATE_DIRECTORY/service-config.json \
   --keys PRIVATE_DIRECTORY/worker-room-keys.json --account YOUR_ACCOUNT_ID
 ```

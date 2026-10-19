@@ -31,7 +31,6 @@ You need a Cloudflare account, Node 20 or newer, and a checkout of this
 repository.
 
 ```sh
-cd services/shared-room
 npm ci
 npx wrangler login
 npm run setup

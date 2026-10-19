@@ -1,6 +1,6 @@
 # Join an Aspen room from the web
 
-Open `https://aspen.ve6slp.ca` on your desktop or phone. Select a channel, enter
+Open your room service's HTTPS address on your desktop or phone. Select a channel, enter
 your operator-created username and choose **Join with passkey**. Your device
 asks for its usual PIN, fingerprint or other passkey verification. The operator
 sets your display name and grants access to each channel.
@@ -10,16 +10,16 @@ that is already signed in. Password sign-in is disabled in passkey mode.
 Aliases pointing to the same backend show the same ordered messages; another
 backend has its own conversation.
 
-The configured deployment also serves `https://aspen.ve6slp.ca`; its
-`workers.dev` address remains available to the radio frontend, but passkey
-sign-in uses only the configured `PASSKEY_ORIGIN`. Change or remove
-the custom-domain route in `wrangler.jsonc` when deploying in another Cloudflare
-zone. Browser keys, cookies and unsent work belong to an origin: opening the
-other address creates a separate browser device. Keep the original origin's
-site data to retain its identity and drafts.
+The service answers on its `workers.dev` address and on any custom domain you
+add. Radio frontends can use either; passkey sign-in uses only the configured
+`PASSKEY_ORIGIN`. Add a custom domain with `npm run setup -- --route rooms.example.org`,
+or add `{"pattern": "rooms.example.org", "custom_domain": true}` to `routes` in
+`wrangler.local.jsonc`. Browser keys, cookies and unsent work belong to an
+origin: opening the other address creates a separate browser device. Keep the
+original origin's site data to retain its identity and drafts.
 
 For the same flow in a Linux terminal, [build and run the terminal
-client](../../clients/room-tui/README.md). Press Enter to show its five-minute
+client](https://github.com/slepp/meshcore-aspen/blob/main/clients/room-tui/README.md). Press Enter to show its five-minute
 QR/copy-code request, then approve it in your signed-in browser. It joins the
 same account and history with a separate locally stored device keypair.
 
@@ -154,7 +154,7 @@ device available before losing access to your only sign-in device.
 
 ## Operator-created accounts
 
-From `services/shared-room`, create an account and upload its name and room
+Create an account and upload its name and room
 grants as a secret. `--passkey` does not ask for or save a usable password.
 Existing account records can be retained without changing device authors or
 drafts; their old password hashes are no longer accepted for sign-in.
@@ -182,11 +182,11 @@ Enable the account authority at the canonical origin:
 ```sh
 CLOUDFLARE_ACCOUNT_ID=CLOUDFLARE_ACCOUNT_ID npx wrangler deploy --keep-vars \
   --var WEB_AUTH_MODE:passkey \
-  --var PASSKEY_ORIGIN:https://aspen.ve6slp.ca \
-  --var PASSKEY_RP_ID:ve6slp.ca
+  --var PASSKEY_ORIGIN:https://rooms.example.org \
+  --var PASSKEY_RP_ID:example.org
 node tools/web-passkeys.mjs \
   --users "$HOME/.config/aspen-room-operator/users.json" \
-  --username alice --origin https://aspen.ve6slp.ca \
+  --username alice --origin https://rooms.example.org \
   --enrollments "$HOME/.config/aspen-room-operator/enrollments.json" \
   --link "$HOME/.config/aspen-room-operator/alice-enrollment.txt" \
   --upload --account CLOUDFLARE_ACCOUNT_ID

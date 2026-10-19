@@ -1,18 +1,55 @@
-# Shared Aspen rooms
+# Aspen shared rooms
 
-Use **Aspen Rooms** from a desktop, phone or terminal to share a conversation
-with radio users. Open the service's HTTPS address, select a channel and sign
-in with your operator-created account's passkey. The
-[terminal client](../../clients/room-tui/README.md) shows a five-minute QR/copy
-code to approve on a signed-in browser. Each device keeps its own local
-message-author keypair; the `Accounts` Durable Object links those keys to
-accounts across rooms. Radio frontends carry MeshCore packets between the
-service and the mesh; browser, terminal and radio users share the same stored
-conversation.
+A Cloudflare Worker that hosts MeshCore rooms for [Aspen](https://github.com/slepp/meshcore-aspen)
+nodes. Radio frontends carry MeshCore packets between the Worker and the mesh,
+and people join the same conversation from a browser or terminal with a passkey.
+The Worker holds each room's key, membership, ordered messages and delivery
+cursors in SQLite Durable Objects.
 
-Browser and terminal device keys identify message authors within the room.
-They do not advertise companion identities or provide private radio DMs.
-See [web accounts and delivery](WEB.md) for access and message status.
+## Deploy your own
+
+You need a Cloudflare account and Node 20 or newer.
+
+```sh
+npm ci
+npx wrangler login
+npm run setup
+```
+
+`setup` names the Worker, optionally adds a custom domain, generates the
+`ROOM_KEK` and operator secrets, deploys, and prints a `cloudroom create`
+command to run on an Aspen node. [Host your own shared rooms](SELF_HOSTING.md)
+covers the steps, limits, backups and recovery.
+
+## Run it locally
+
+```sh
+npm ci
+cp .dev.vars.fixture .dev.vars
+npm run dev
+```
+
+The fixture uses public keys for simulated packets. Never advertise those
+identities on a real RF network.
+
+## Deployment configuration
+
+`wrangler.jsonc` is the base configuration; `npm run setup` copies it to
+`wrangler.local.jsonc` (git-ignored) with your Worker name and domain.
+
+- **Custom domain.** The base file has no route, so the Worker answers on
+  `workers.dev`. Add `"routes": [{"pattern": "rooms.example.org", "custom_domain": true}]`
+  to serve a domain on a zone in your Cloudflare account.
+- **Durable Objects.** Bindings `ROOMS` (`Room`), `ACCOUNTS` (`Accounts`) and
+  `REGISTRY` (`Registry`) come from migrations `v1`, `v2` and `v3`. Keep all
+  three tags and their order in any deployment, including one that began on an
+  earlier version; a deploy applies only the migrations the Worker lacks.
+- **Variables.** `vars` holds public settings such as `SIGNUP_MODE`,
+  `WEB_AUTH_MODE`, `PASSKEY_ORIGIN` and `PASSKEY_RP_ID`. Deploy with
+  `--keep-vars` so variables set elsewhere survive.
+- **Secrets.** `ALIASES`, `FRONTENDS`, `ROOM_KEYS`, `WEB_USERS`,
+  `WEB_ENROLLMENTS`, `ROOM_KEK` and `ADMIN_TOKEN_HASH` are Worker secrets,
+  never `vars`. Upload them with `wrangler secret` or the tools in `tools/`.
 
 ## Choose how to run a room
 
@@ -32,21 +69,13 @@ The server holding a room's key can read the room and send as it
 
 ## Run the room service
 
-Deploy one Cloudflare Worker with one SQLite Durable Object per backend room.
+The Worker runs one SQLite Durable Object per backend room.
 The Worker stores room keys, membership, ordered messages, duplicate detection
 and radio delivery cursors. Radio frontends use hibernating WebSockets.
-The [on-device service hooks](../../firmware/runtime/NATIVE_SERVICES.md)
+The [on-device service hooks](https://github.com/slepp/meshcore-aspen/blob/main/firmware/runtime/NATIVE_SERVICES.md)
 let a radio run the frontend alongside its other roles.
 
-```sh
-cd services/shared-room
-npm ci
-cp .dev.vars.fixture .dev.vars
-npm run dev
-```
-
-The example uses **public local fixture keys**. Use it for simulated packets;
-never advertise those identities on a real RF network. For a deployment,
+For a deployment,
 configure private `ALIASES`, `FRONTENDS` and `ROOM_KEYS` secrets. Keep
 `MODE="opaque"`, the default. [TRUST.md](TRUST.md) describes private setup.
 An unconfigured Worker rejects requests with 401; it needs no empty credential
@@ -63,7 +92,7 @@ variables. Keep those three names out of Wrangler's public `vars`.
 | `SIGNUP_MODE="code"` | `code` (create needs an operator code), `closed` or `open` |
 | `MAX_ROOMS`, `MAX_FRONTENDS`, `HOSTED_HISTORY_LIMIT`, `ROOM_WRITES_PER_DAY` | Hosted-room limits: 2000 rooms, 16 nodes per room, 2000 stored messages, 20000 writes per day |
 | `WEB_AUTH_MODE="passkey"` | Disable password sign-in and enable the account authority |
-| `PASSKEY_ORIGIN`, `PASSKEY_RP_ID` | Exact sign-in origin and WebAuthn relying-party ID; this deployment uses `https://aspen.ve6slp.ca` and `ve6slp.ca` |
+| `PASSKEY_ORIGIN`, `PASSKEY_RP_ID` | Exact sign-in origin and WebAuthn relying-party ID, such as `https://rooms.example.org` and `example.org` |
 | `WEB_ENROLLMENTS[tokenHash] = {username,grant,expires}` | One-use first-passkey enrollment hashes; upload as a secret with [the enrollment tool](WEB.md#operator-created-accounts) |
 
 Several frontends can serve the same public key/name without receiving its
@@ -104,7 +133,7 @@ npm run build
 npx wrangler deploy
 ```
 
-Use the existing Worker name, Cloudflare account, `ROOMS` and `ACCOUNTS` namespaces. Keep
+Use the existing Worker name, Cloudflare account and Durable Object namespaces (`ROOMS`, `ACCOUNTS`, `REGISTRY`). Keep
 the configured secrets; do not regenerate room identities. The browser session
 tables and optional message display-name field are added without replacing
 history, radio membership or pending deliveries. The assets deploy with the
@@ -252,7 +281,7 @@ regions. Names are case-sensitive; `ab` and `AB` differ. An optional leading
 tree in this service. Each frontend selects one public region explicitly.
 Native clients need their outgoing scope configured to match, including their
 flooded PATH ACKs; receiving a scoped advert does not automatically select it.
-See Aspen's [region guide](../../firmware/shared/REGIONS.md).
+See Aspen's [region guide](https://github.com/slepp/meshcore-aspen/blob/main/firmware/shared/REGIONS.md).
 
 Public region names derive publicly known transport keys and control flood
 routing. They are not an authorization boundary. Native ordinary direct
@@ -309,9 +338,27 @@ forged decoded requests. The native crypto test uses the committed C++ packet
 and ACK fixture; login/post/PATH/REQ and scoped fixtures come from pinned meshcore-go.
 Regional checks cover both transport routes, matching scope on replies,
 catch-up, hibernation and wrong-region/corrupted-code rejection.
-`make -C firmware/shared/cloudroom test` checks the portable driver and parser.
+`make -C firmware/shared/cloudroom test` in the [Aspen firmware repository](https://github.com/slepp/meshcore-aspen) checks the portable driver and parser.
 The build is a Wrangler dry run; none of these commands deploy or transmit RF.
 Live hardware/RF interoperability still needs an operator test.
+
+The Aspen firmware lives in [slepp/meshcore-aspen](https://github.com/slepp/meshcore-aspen),
+which also holds the device-side client, the portable driver tests and the
+terminal client. Two checks here use it:
+
+- `npm run test:e2e` runs the firmware's lifecycle code against a local Worker.
+  Build `cloudroom-e2e-agent` in the firmware repository, then set `E2E_AGENT`
+  (and `E2E_AGENT_PROVIDER`) to the binaries. Without them the test skips.
+- `npm run test:browser` also drives the terminal client when `ROOM_TUI_DIR`
+  points at the firmware repository's `clients/room-tui`.
+
+`tools/native-fixtures.go` and `tools/create-test-setup.go` use their own
+`tools/go.mod`; run them from `tools/` with `go run`. `native-fixtures.go`
+reproduces `test/native-fixtures.json` exactly.
+
+The firmware repository's tests read `tools/measure_wire.py`,
+`tools/web-users.mjs` and `test/native-fixtures.json` from a checkout of this
+repository. Changes to those files need a matching firmware-side update.
 
 Cloudflare's [hibernation API](https://developers.cloudflare.com/durable-objects/best-practices/websockets/)
 avoids duration charges while idle and eligible to hibernate. Its
