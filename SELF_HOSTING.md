@@ -7,7 +7,7 @@ and about ten minutes.
 
 ## Hosted service or your own server
 
-| | Hosted (`rooms.ve6slp.ca`) | Your own Worker |
+| | Hosted (`aspen.ve6slp.ca`) | Your own Worker |
 |---|---|---|
 | Setup | Request a create code, then run `cloudroom create` | `npm run setup`, then mint your own codes |
 | Who can read and speak as the room | The hosted service operator | You |
@@ -48,7 +48,7 @@ domain, then:
 4. mints one create code and prints the command to use it:
 
 ```text
-Worker aspen-rooms runs at https://aspen-rooms.example.workers.dev (version 0.1.20, signup code).
+Worker aspen-rooms runs at https://aspen-rooms.example.workers.dev (version 0.1.21, signup code).
 Copy .deploy/room-kek.json to your password manager. Without it, hosted rooms cannot be recovered.
 
 Create your first room from the companion app's Management console on an Aspen node:

@@ -55,7 +55,7 @@ before(async () => {
   server = createServer(async (req, res) => {
     let body = ""; for await (const c of req) body += c;
     const reply = (status, json) => {res.writeHead(status, {"content-type": "application/json"}); res.end(JSON.stringify(json));};
-    if (req.url === "/v1/info") return reply(200, {service: "aspen-shared-room", version: "0.1.20", protocol: "aspen-node.v1", signup: "code", time: 1790000000});
+    if (req.url === "/v1/info") return reply(200, {service: "aspen-shared-room", version: "0.1.21", protocol: "aspen-node.v1", signup: "code", time: 1790000000});
     if (req.url.startsWith("/v1/admin/")) {
       const token = (req.headers.authorization ?? "").replace(/^Bearer /, "");
       const adminHash = await currentHash();
@@ -218,7 +218,7 @@ test("admin refuses a token file that other users can read", async () => {
 test("doctor reports a healthy deployment and warns when logs are on", async () => {
   const good = await run("doctor.mjs", ["--url", origin]);
   assert.equal(good.code, 0, good.stdout + good.stderr);
-  assert.match(good.stdout, /ok .*aspen-shared-room 0\.1\.20/);
+  assert.match(good.stdout, /ok .*aspen-shared-room 0\.1\.21/);
   assert.match(good.stdout, /ok .*Operator API accepts/);
   const path = join(pkg, "wrangler.local.jsonc");
   const text = await readFile(path, "utf8");
@@ -240,7 +240,7 @@ test("doctor fails when the operator API is off", async () => {
 test("configure --worker checks the key file against the named Worker", async () => {
   const dir = await mkdtemp(join(scratch, "cfg-"));
   const config = join(dir, "c.json"), keys = join(dir, "k.json");
-  await writeFile(config, JSON.stringify({ALIASES: {A: {backend: "b", publicKey: "22351e22105a19aabb42589162ad7f1ea0df1c25cebf0e4a9fcd261301274862", name: "A", password: "room"}},
+  await writeFile(config, JSON.stringify({ALIASES: {A: {backend: "b", publicKey: "22351e22105a19aabb42589162ad7f1ea0df1c25cebf0e4a9fcd261301274862", name: "A", password: "room"}}, // pragma: allowlist secret
     FRONTENDS: {one: {token: "public-local-fixture-token-00000001", aliases: ["A"]}}}), {mode: 0o600});
   await writeFile(keys, JSON.stringify({worker: "aspen-test", keyLocation: "worker",
     expandedKeys: {A: "18bf5297036bf9a0bdce8f050f58e57e50413a49ae37e7fb74a044e8b48363632a2ce0aed069264b9a988490fb6cca0cce7285994ad29f6ad23c2920fbb76f47"}}), {mode: 0o600});
