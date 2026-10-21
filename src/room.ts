@@ -1325,6 +1325,7 @@ export class Room extends DurableObject<Env> {
         this.sql.exec("UPDATE hosted_frontend SET revoked=1 WHERE node=?", target.node);
         await this.pump();
         try {await this.registry().memberRemove(target.node, alias);} catch {/* the Registry alarm re-checks bans */}
+        try {await this.registry().recordAudit(me.node.slice(0, 8), "revoke", alias, "ok");} catch {/* audit is best effort */}
         return {ok: 1};
       }
       case "password": {

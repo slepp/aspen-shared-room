@@ -57,6 +57,7 @@ it("closes sockets immediately on revoke, leave, disable and delete, and refuses
   await control(room.alias, room.token, {op: "revoke", id: nodeB.pub.slice(0, 8)});
   expect(await m.closed).toBe(1008);
   await socket(room.alias, member.token, 401);
+  expect(await registrySql("SELECT action, target FROM audit WHERE action='revoke'")).toEqual([{action: "revoke", target: room.alias}]);
   // disable: sockets close, tokens say disabled, enable restores the same token
   expect((await admin("room", {alias: room.alias, action: "disable"})).body).toEqual({ok: 1});
   expect(await owner.closed).toBe(1008);
