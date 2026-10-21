@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {authorName, bytes, initials, mergeMessages, mergeProfiles, messageBody, postBytes, radioDeliveryIndicator, radioDeliveryLabel, validName} from "../web/model.js";
+import {authorName, bytes, initials, mergeMessages, mergeProfiles, messageBody, postBytes, radioDeliveryIndicator, radioDeliveryLabel, sameRun, validName, dayLabel} from "../web/model.js";
 
 test("counts the actual RF text budget including UTF-8 display name", () => {
   assert.equal(bytes("Zoë"), 4);
@@ -71,4 +71,24 @@ test("keeps waiting and paused counts in details, shows only ACK evidence or exc
   }
   assert.equal(radioDeliveryIndicator({...sent, exhausted: 1}).attention, true);
   assert.equal(radioDeliveryIndicator(undefined).label, "Radio delivery status unavailable");
+});
+
+test("groups a run of messages by author, day and a five-minute gap", () => {
+  const at = new Date(2026, 9, 20, 12, 0, 0).getTime() / 1000;
+  const alice = {author: "aa".repeat(32), timestamp: at}, sam = {author: "bb".repeat(32), timestamp: at + 30};
+  assert.equal(sameRun(undefined, alice), false);
+  assert.equal(sameRun(alice, {...alice, timestamp: at + 300}), true);
+  assert.equal(sameRun(alice, {...alice, timestamp: at + 301}), false);
+  assert.equal(sameRun(alice, sam), false);
+  const lateNight = {author: alice.author, timestamp: new Date(2026, 9, 20, 23, 59, 0).getTime() / 1000};
+  assert.equal(sameRun(lateNight, {...lateNight, timestamp: lateNight.timestamp + 120}), false);
+});
+
+test("labels the current and previous day, then the date", () => {
+  const now = new Date(2026, 9, 20, 15, 0, 0);
+  assert.equal(dayLabel(new Date(2026, 9, 20, 0, 5), now), "Today");
+  assert.equal(dayLabel(new Date(2026, 9, 19, 23, 55), now), "Yesterday");
+  assert.match(dayLabel(new Date(2026, 9, 12), now), /12/);
+  assert.doesNotMatch(dayLabel(new Date(2026, 9, 12), now), /2026/);
+  assert.match(dayLabel(new Date(2025, 11, 31), now), /2025/);
 });

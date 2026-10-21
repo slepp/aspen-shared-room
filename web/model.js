@@ -62,3 +62,15 @@ export function mergeMessages(existing, incoming) {
   }
   return [...existing.values()].sort((a, b) => a.seq - b.seq);
 }
+const GROUP_SECONDS = 300;
+const dayKey = message => new Date(message.timestamp * 1000).toDateString();
+/** True when `b` continues the run of messages that `a` started: same author, same day, five minutes or less apart. */
+export const sameRun = (a, b) => !!a && !!b && a.author === b.author && b.timestamp - a.timestamp <= GROUP_SECONDS && dayKey(a) === dayKey(b);
+export function dayLabel(date, now = new Date()) {
+  const start = value => new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  const days = Math.round((start(now) - start(date)) / 864e5);
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
+  return date.toLocaleDateString(undefined, {weekday: "short", month: "short", day: "numeric",
+    ...(date.getFullYear() === now.getFullYear() ? {} : {year: "numeric"})});
+}
