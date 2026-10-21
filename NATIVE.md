@@ -9,6 +9,8 @@ change. A node serves up to two rooms, and both share its one radio and TX
 scheduler. The generic `public_aspen` image includes the frontend; its
 [private initial setup](https://github.com/slepp/meshcore-aspen/blob/main/firmware/esp32/PUBLIC_SETUP.md) needs no room
 settings. Shared rooms stay off until you join, create or convert one.
+A shared room is also open in the [browser and terminal client](WEB.md#hosted-rooms-in-the-browser),
+where people read and post in the same history as the radios.
 
 ## Join, create or convert a room
 

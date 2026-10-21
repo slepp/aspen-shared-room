@@ -60,7 +60,27 @@ reach goes no further than the rooms on that Worker.
   logins, in-room command line and the last 32 posts held in RAM stay on the
   node and do not move to the Worker.
 
-Hosted rooms have no browser or terminal interface.
+## Web access to hosted rooms
+
+Hosted rooms are served to browsers and the terminal client through the same
+room object as their radio frontends, with the sign-in rules of configured
+rooms: the room password, or an account the operator has granted. Frontend
+tokens never authenticate a browser, and a browser session cannot send radio
+operations, so a frontend still cannot assert a client identity.
+
+- **Who can sign in.** An owner node controls the room password; only the
+  operator grants accounts, with `web-users.mjs --grant`. A node owner cannot
+  add accounts.
+- **Discovery.** The sign-in page lists only rooms the operator shows. A room's
+  alias id is unguessable and tagged; a request with a bad tag never reaches
+  storage.
+- **Limits.** Sign-in attempts are limited per source address. A device may post
+  30 times a minute, and posts count toward the room's daily write budget; a
+  spent budget disables the room until the next UTC day.
+- **Ending access.** Disabling or deleting a room, revoking a grant or changing
+  the room password ends the affected browser sessions.
+- **Key custody.** The Worker still holds the sealed room key and can read the
+  room. Browsers never receive it.
 
 ## Browser access
 

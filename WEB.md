@@ -168,11 +168,13 @@ node tools/web-users.mjs \
   --upload --account CLOUDFLARE_ACCOUNT_ID
 ```
 
-Use alias IDs from `ALIASES`, not room labels. The tool creates a `0700` directory
+Use alias IDs from `ALIASES` or, for a hosted room, from `admin.mjs rooms`, not
+room labels. The tool creates a `0700` directory
 and `0600` file, refuses public files and symlinks, and uploads `WEB_USERS` only
 as a secret after checking the active Worker binding types. Never put it in
 Wrangler `vars`. Radio passwords stay unchanged. Run the creation command again
-to change a name or grants. Use
+to change a name; use `--grant` and `--ungrant` to change room access without
+replacing the password record. Use
 `--username alice --remove` followed by `--upload` to revoke an account.
 Any change to an account or its room configuration invalidates its sessions;
 its signed-in devices must log in again, retaining their keys and unsent work.
@@ -225,6 +227,44 @@ Clients refuse to resend an old pending post under a different author, because
 that would defeat deduplication. Do not clear browser storage to bypass that
 warning.
 
+## Hosted rooms in the browser
+
+A room made with `cloudroom create`, `join` or `convert` is a hosted room. It
+has the same browser and terminal interface as a configured room, and the same
+history: a post from a browser reaches every radio frontend, and a radio post
+shows in every browser, in one order. A room can have several radio frontends,
+each with its own node identity; revoking one node leaves the others and the
+browser sessions running.
+
+Sign-in follows the service's login mode:
+
+- **Room password.** The hosted room's password, which an owner node shows with
+  `cloudroom password`.
+- **Accounts and passkeys.** The operator grants the account the room's alias id.
+  Find the id with `node tools/admin.mjs rooms`, then grant it without touching
+  the password or passkeys:
+
+  ```sh
+  node tools/web-users.mjs --file "$HOME/.config/aspen-room-operator/users.json" \
+    --username alice --grant ROOM_ALIAS_ID
+  node tools/web-users.mjs --file "$HOME/.config/aspen-room-operator/users.json" \
+    --upload --account CLOUDFLARE_ACCOUNT_ID
+  ```
+
+  `--ungrant ID[,ID]` removes access, for example a retired static room. Uploading
+  changes the account record, so that account signs in again once with its
+  passkey; devices that were linked keep their keys, and the terminal client
+  signs in with its existing device key.
+
+The sign-in page lists a hosted room only after `node tools/admin.mjs show ALIAS`;
+`hide` removes it. An unlisted room still works for accounts that hold the grant
+and for browsers that know its alias id and password.
+
+Each browser device may post 30 times a minute to a hosted room. Browser posts
+count toward the room's daily write limit, like radio posts, and browser
+activity keeps an idle room from being disabled. Disabling, deleting or changing
+the password of a room ends its browser sessions and sockets.
+
 ## Browser API
 
 These routes use room-scoped session cookies, not `FRONTENDS` bearer tokens.
@@ -232,9 +272,10 @@ Requests and responses are JSON; responses are not cached. Mutating requests
 use `Content-Type: application/json` and an `Origin` matching the Worker.
 Login and sockets require HTTPS, except for local development on localhost.
 The browser API does not accept radio operations or expose room private keys.
-It lists only rooms configured through `ALIASES`. A room created or converted
-with `cloudroom` commands is radio-only: it has no channel, sign-in or history
-view in the browser or terminal client.
+`GET /v1/web/rooms` lists rooms configured through `ALIASES` and the hosted
+rooms the operator has shown with `node tools/admin.mjs show ALIAS`. Every
+hosted room answers the same room routes below under its 30-character alias id,
+listed or not.
 
 | Route | Request / result |
 | --- | --- |

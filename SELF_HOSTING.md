@@ -110,6 +110,8 @@ npm run admin -- mint --count 3 --ttl 86400
 npm run admin -- rooms
 npm run admin -- disable ROOM_ID
 npm run admin -- enable ROOM_ID
+npm run admin -- show ROOM_ID
+npm run admin -- hide ROOM_ID
 npm run admin -- delete ROOM_ID --yes
 npm run admin -- codes
 npm run admin -- revoke-code HASH_PREFIX
@@ -125,10 +127,21 @@ npm run admin -- audit
 | `rooms` | List rooms with state, owner node and last activity. |
 | `disable`, `enable` | Stop a room, or resume it. A disabled room closes its connections and keeps its data for 30 days. |
 | `delete` | Remove a room, its history and its key for every node. |
+| `show`, `hide` | List a room on the web sign-in page, or remove it. `rooms` shows which rooms are listed. |
 | `codes`, `revoke-code` | List codes by hash prefix, or revoke one. |
 | `ban`, `unban` | Block a node key. A ban revokes that node's tokens in every room. |
 | `invite` | Mint an owner code (15 minutes) for a room whose only owner node is lost. |
 | `audit` | Operator actions, redemptions and revocations. Entries hold node ids, never addresses. |
+
+### Open a room in the browser
+
+Every hosted room already works in the browser and the terminal client. People
+sign in with the room password (`cloudroom password` on an owner node) or, in
+account mode, with an account you grant. Run `npm run admin -- rooms` for the
+room's id, `npm run admin -- show ROOM_ID` to list it on the sign-in page, and
+grant accounts with `node tools/web-users.mjs --file USERS.json --username NAME
+--grant ROOM_ID`, then `--upload`
+([accounts](WEB.md#hosted-rooms-in-the-browser)).
 
 `npm run doctor` checks the deployment: `/v1/info`, the Worker version against
 this checkout, `ROOM_KEK` and `ADMIN_TOKEN_HASH`, the Durable Object migration,

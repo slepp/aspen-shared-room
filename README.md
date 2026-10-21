@@ -60,12 +60,15 @@ identities on a real RF network.
 | Share a room your node already serves | [`cloudroom convert`](NATIVE.md#convert-a-local-room) |
 | Run the service yourself | [Host your own shared rooms](SELF_HOSTING.md): `npm run setup` deploys a Worker |
 | Serve fixed rooms with static keys and a browser interface | Configure `ALIASES`, `FRONTENDS` and `ROOM_KEYS` as below |
+| Open a hosted room in the browser or terminal client | [Hosted rooms in the browser](WEB.md#hosted-rooms-in-the-browser) |
 
-Rooms created through `cloudroom` commands are radio rooms: the Worker holds
-their keys, nodes forward packets, and the browser and terminal clients do not
-list them. Statically configured rooms keep every behaviour described here.
-The server holding a room's key can read the room and send as it
-([TRUST.md](TRUST.md)).
+Rooms created through `cloudroom` commands are hosted rooms: the Worker holds
+their keys and nodes forward packets. Browsers and the terminal client use the
+same room and the same history as the radios. The operator lists a hosted room
+on the sign-in page with `show` and grants accounts access to it
+([WEB.md](WEB.md#hosted-rooms-in-the-browser)). Statically configured rooms keep
+every behaviour described here. The server holding a room's key can read the
+room and send as it ([TRUST.md](TRUST.md)).
 
 ## Run the room service
 
