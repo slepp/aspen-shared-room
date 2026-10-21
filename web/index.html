@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f0f0e9" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#181e1a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f8f9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e151a" media="(prefers-color-scheme: dark)">
   <meta name="description" content="Join shared Aspen rooms from the web. One conversation across IP and mesh radios.">
   <title>Aspen Rooms</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -15,23 +15,18 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to conversation</a>
   <div class="shell">
-    <button class="scrim" id="scrim" aria-label="Close channel list" hidden></button>
-    <aside class="sidebar" id="sidebar" aria-label="Channels">
+    <button class="scrim" id="scrim" aria-label="Close room list" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Rooms">
       <a class="brand" href="/" aria-label="Aspen Rooms home">
-        <img src="/icon.svg" width="36" height="36" alt="">
-        <span>Aspen<span class="brand-caption">ROOMS</span></span>
+        <img src="/icon.svg" width="32" height="32" alt="">
+        <span>Aspen Rooms</span>
       </a>
-      <button class="icon-button mobile-close" id="close-channels" aria-label="Close channels">×</button>
-      <div class="workspace">
-        <span class="workspace-mark" aria-hidden="true">A</span>
-        <div><strong>Shared rooms</strong><span id="service-name">Connecting to service</span></div>
-      </div>
-      <div class="channel-heading"><h2>Channels</h2><span id="channel-count"></span></div>
+      <button class="icon-button mobile-close" id="close-channels" aria-label="Close room list">×</button>
+      <div class="channel-heading"><h2>Rooms</h2><span id="channel-count"></span></div>
       <nav id="channels" class="channels" aria-label="Choose a room"></nav>
-      <div class="sidebar-note"><span class="signal-mark" aria-hidden="true"></span><p>One conversation.<br>Web and mesh, together.</p></div>
       <div class="identity">
         <span class="avatar profile-avatar" id="profile-avatar" aria-hidden="true">?</span>
-        <div><strong id="profile-name">Your browser</strong><span>Private device identity</span></div>
+        <div><strong id="profile-name">Your browser</strong><span id="service-name">Connecting</span></div>
         <button class="icon-button" id="edit-profile" aria-label="Edit display name" title="Edit display name">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15z"/></svg>
         </button>
@@ -40,11 +35,10 @@
     </aside>
     <main class="main" id="main-content" tabindex="-1">
       <header class="room-header">
-        <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Show channels" aria-expanded="false" aria-controls="sidebar">
+        <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Show rooms" aria-expanded="false" aria-controls="sidebar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <span class="header-hash" aria-hidden="true">#</span>
-        <div class="room-title"><h1 id="room-name" tabindex="-1">Aspen Rooms</h1><p id="room-subtitle">Shared conversations, wherever you join.</p></div>
+        <div class="room-title"><h1 id="room-name" tabindex="-1">Aspen Rooms</h1><p id="room-subtitle">Shared with mesh radios</p></div>
         <div class="connection" id="connection" role="status"><span class="status-dot"></span><span id="connection-text">Connecting</span></div>
         <button class="icon-button" id="room-info" aria-label="Room details" title="Room details">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>
@@ -52,10 +46,8 @@
       </header>
       <div class="notice" id="notice" role="alert" hidden><span id="notice-text"></span><button id="notice-dismiss" class="icon-button" aria-label="Dismiss notice">×</button></div>
       <section class="join-panel" id="join-panel" hidden aria-labelledby="join-title">
-        <div class="join-symbol" aria-hidden="true">#</div>
-        <p class="eyebrow">SHARED ASPEN ROOM</p>
-        <h2 id="join-title">Come into the conversation.</h2>
-        <p class="join-description">Connect over IP. Read and send the same messages as the people joining through mesh radios.</p>
+        <h2 id="join-title">Join the room</h2>
+        <p class="join-description">Read and send the same messages as people on mesh radios.</p>
         <form id="join-form">
           <label for="account-username" id="username-label" hidden>Username</label>
           <input id="account-username" name="username" autocomplete="username" maxlength="64" placeholder="Your operator-created account" aria-describedby="join-error" hidden>
@@ -64,7 +56,7 @@
           <label for="room-password" id="password-label">Room password</label>
           <input id="room-password" name="password" type="password" autocomplete="current-password" placeholder="Ask the room operator" aria-describedby="join-error">
           <p class="form-error" id="join-error" role="alert" hidden></p>
-          <button class="primary-button" id="join-button" type="submit">Join room <span aria-hidden="true">→</span></button>
+          <button class="primary-button" id="join-button" type="submit">Join room</button>
         </form>
         <button class="quiet-button" id="link-device" hidden>Link this browser from a signed-in device</button>
         <p class="privacy-note" id="login-note">Your identity stays with this browser. Your display name is included in messages sent to the room.</p>
@@ -72,13 +64,12 @@
       <section class="timeline" id="timeline" aria-label="Room messages" tabindex="0">
         <div class="timeline-top"><button class="quiet-button" id="load-older" hidden>Load earlier messages</button></div>
         <div class="conversation-intro" id="conversation-intro">
-          <span class="intro-hash" aria-hidden="true">#</span>
-          <h2 id="intro-title">A place to stay connected.</h2>
-          <p id="intro-text">Choose a channel to join its conversation.</p>
+          <h2 id="intro-title">Aspen Rooms</h2>
+          <p id="intro-text">Choose a room to read and send messages.</p>
         </div>
         <div id="messages"></div>
       </section>
-      <button class="new-messages" id="new-messages" hidden>New messages <span aria-hidden="true">↓</span></button>
+      <button class="new-messages" id="new-messages" hidden>New messages</button>
       <footer class="composer-area" id="composer-area" hidden>
         <div class="pending-post" id="pending-post" role="status" hidden>
           <span id="pending-text"></span>
@@ -86,17 +77,14 @@
         </div>
         <form id="compose-form" class="composer">
           <label class="sr-only" for="message-input">Message this room</label>
-          <textarea id="message-input" rows="2" placeholder="Message this room" aria-describedby="composer-hint byte-count compose-error"></textarea>
-          <div class="composer-actions">
-            <span class="composer-hint" id="composer-hint">Name counts toward the limit</span>
-            <span class="byte-count" id="byte-count">0 / 151 bytes</span>
-            <button class="send-button" id="send-button" type="submit" aria-label="Send message" disabled>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 5v15"/></svg>
-            </button>
-          </div>
+          <textarea id="message-input" rows="1" placeholder="Message this room" aria-describedby="composer-hint byte-count compose-error"></textarea>
+          <span class="byte-count quiet" id="byte-count">0 / 151 bytes</span>
+          <button class="send-button" id="send-button" type="submit" aria-label="Send message" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 5v15"/></svg>
+          </button>
         </form>
         <p class="compose-error" id="compose-error" role="status" hidden>Message too long. The 151-byte limit includes your name and UTF-8 text.</p>
-        <div class="composer-footer"><span>IP connection · Messages also reach radio participants</span><span class="desktop-hint">Enter to send · Shift + Enter for a new line</span></div>
+        <p class="composer-hint" id="composer-hint"><span class="desktop-hint">Enter sends, Shift+Enter adds a line. </span>Your name counts toward the 151-byte limit.</p>
       </footer>
     </main>
   </div>
@@ -105,14 +93,17 @@
     <div class="dialog-heading"><h2 id="message-detail-title">Message details</h2><button id="close-message-details" class="icon-button" aria-label="Close message details">×</button></div>
     <p id="message-detail-text" class="message-text"></p>
     <dl><dt>Author</dt><dd id="message-detail-author"></dd><dt>Device key</dt><dd class="key" id="message-detail-key"></dd><dt>Sent</dt><dd id="message-detail-time"></dd><dt>From</dt><dd id="message-detail-source"></dd><dt>Radio delivery</dt><dd id="message-detail-rf"></dd></dl>
-    <p>This message is saved in the room. Radio ACKs confirm receipt by a radio client. The counts track radio sessions and their delivery attempts, including offline radios; a radio joined through two aliases can count twice.</p>
-    <p>Waiting sessions may need earlier history first. Paused means their frontend is disconnected or no longer authorized to deliver the message; those sessions also appear in the delivery counts.</p>
-    <p>Transmitted means the frontend confirmed transmission. Acknowledged means a radio returned an ACK. Exhausted deliveries can still receive a late ACK. Rejoin from the companion app to resume its history without reposting.</p>
+    <p>Saved in the room history. A radio ACK means a radio client received the message, not that someone read it.</p>
+    <details>
+      <summary>How delivery is counted</summary>
+      <p>Counts are radio sessions and their delivery attempts, including offline radios. A radio joined through two aliases can count twice. Waiting sessions may need earlier history first. Paused means the session's frontend is disconnected or no longer authorized to deliver the message.</p>
+      <p>Transmitted means the frontend confirmed transmission. Acknowledged means a radio returned an ACK. Exhausted deliveries can still receive a late ACK. Rejoin from the companion app to resume its history without reposting.</p>
+    </details>
   </dialog>
   <dialog id="details-dialog" aria-labelledby="details-title">
     <div class="dialog-heading"><h2 id="details-title">Room details</h2><button id="close-details" class="icon-button" aria-label="Close room details">×</button></div>
     <dl><dt>Room</dt><dd id="detail-name"></dd><dt>Alias</dt><dd id="detail-alias"></dd><dt>Radio identity</dt><dd class="key" id="detail-key"></dd><dt>Your device identity</dt><dd class="key" id="detail-author"></dd></dl>
-    <p>Web posts enter the room's stored history. Open a message's details to see its radio delivery and acknowledgements.</p>
+    <p>Open a message's details to see its radio delivery.</p>
     <button class="danger-button" id="leave-room">Leave room on this browser</button>
   </dialog>
   <dialog id="profile-dialog" aria-labelledby="profile-title">

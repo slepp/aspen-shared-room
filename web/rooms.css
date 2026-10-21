@@ -1,242 +1,260 @@
 :root {
   color-scheme: light;
-  --paper: #fdfcf8;
-  --sidebar: #f0f0e9;
-  --surface: #fffefa;
-  --ink: #242d28;
-  --muted: #58634f;
-  --line: #e5e7de;
-  --control-border: #77836f;
-  --green: #315545;
-  --green-hover: #244738;
-  --on-green: #fff;
-  --green-soft: #e0e8db;
-  --hover: #e7e9df;
-  --error: #963d2d;
-  --warning: #775534;
-  --warning-soft: #faf0e7;
-  --danger-soft: #fcf1eb;
-  --profile-bg: #ded9cc;
-  --profile-ink: #5f5745;
-  --avatar-0-bg: #e2e9dc;
-  --avatar-0-ink: #3e583c;
-  --avatar-1-bg: #eae4ef;
-  --avatar-1-ink: #625376;
-  --avatar-2-bg: #efe3d8;
-  --avatar-2-ink: #76533c;
-  --avatar-3-bg: #e0eaec;
-  --avatar-3-ink: #415c64;
-  --avatar-4-bg: #eee1e0;
-  --avatar-4-ink: #7a4c52;
-  --avatar-5-bg: #e8ebd9;
-  --avatar-5-ink: #565d2f;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #f6f8f9;
+  --panel: #eceff1;
+  --surface: #fff;
+  --ink: #131f27;
+  --muted: #52636e;
+  --line: #dbe2e6;
+  --control-border: #6f808b;
+  --accent: #0e5a6e;
+  --accent-hover: #0a4757;
+  --on-accent: #fff;
+  --accent-soft: #dcebf0;
+  --hover: #e1e7ea;
+  --bubble-out: #0e5a6e;
+  --on-bubble-out: #fff;
+  --error: #a3362a;
+  --warning: #7a4b00;
+  --warning-soft: #fcf3df;
+  --danger-soft: #fbece9;
+  --profile-bg: #d5dde2;
+  --profile-ink: #3d4f5a;
+  --avatar-0-bg: #d6ebec; --avatar-0-ink: #145357;
+  --avatar-1-bg: #e6e2f3; --avatar-1-ink: #4b3d82;
+  --avatar-2-bg: #f6e6cc; --avatar-2-ink: #7a4b00;
+  --avatar-3-bg: #f6dde1; --avatar-3-ink: #8a2f47;
+  --avatar-4-bg: #dcebd5; --avatar-4-ink: #2f5b24;
+  --avatar-5-bg: #dbe5f4; --avatar-5-ink: #274a80;
+  --radius-bubble: 18px;
+  --composer-h: 96px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, sans-serif;
   font-size: 100%;
   line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --paper: #181e1a;
-    --sidebar: #202820;
-    --surface: #232c25;
-    --ink: #e9eee4;
-    --muted: #b4bfaa;
-    --line: #3c4839;
-    --control-border: #8a9b80;
-    --green: #b8d5a8;
-    --green-hover: #cee5bf;
-    --on-green: #182319;
-    --green-soft: #33472f;
-    --hover: #303b2e;
-    --error: #ffb6a3;
-    --warning: #e4c398;
-    --warning-soft: #362d22;
-    --danger-soft: #362620;
-    --profile-bg: #4b4232;
-    --profile-ink: #e5d3af;
-    --avatar-0-bg: #354634;
-    --avatar-0-ink: #cae0ba;
-    --avatar-1-bg: #43374c;
-    --avatar-1-ink: #e1cee9;
-    --avatar-2-bg: #4c3b2e;
-    --avatar-2-ink: #f1d5bd;
-    --avatar-3-bg: #2b4146;
-    --avatar-3-ink: #c0dce3;
-    --avatar-4-bg: #4c3438;
-    --avatar-4-ink: #edc5cb;
-    --avatar-5-bg: #41452c;
-    --avatar-5-ink: #dce3b5;
+    --bg: #0e151a;
+    --panel: #111b21;
+    --surface: #182229;
+    --ink: #e7eef2;
+    --muted: #9fb2bd;
+    --line: #24323a;
+    --control-border: #6f8795;
+    --accent: #7cc8dc;
+    --accent-hover: #9ad7e8;
+    --on-accent: #07252e;
+    --accent-soft: #1c3a45;
+    --hover: #1d2a32;
+    --bubble-out: #1d5667;
+    --on-bubble-out: #eaf7fb;
+    --error: #ffb4a6;
+    --warning: #f0c987;
+    --warning-soft: #33291a;
+    --danger-soft: #3a2320;
+    --profile-bg: #2b3a43;
+    --profile-ink: #cfdde5;
+    --avatar-0-bg: #1d4549; --avatar-0-ink: #bfe6e8;
+    --avatar-1-bg: #35305a; --avatar-1-ink: #d9d2f7;
+    --avatar-2-bg: #4a3815; --avatar-2-ink: #f5d9a4;
+    --avatar-3-bg: #4d2630; --avatar-3-ink: #f5c5d0;
+    --avatar-4-bg: #28401f; --avatar-4-ink: #cde8c1;
+    --avatar-5-bg: #243b5c; --avatar-5-ink: #c5d8f5;
   }
 }
 * {box-sizing: border-box}
-body {margin: 0; background: var(--paper); color: var(--ink)}
+html, body {height: 100%}
+body {margin: 0; overflow: hidden; background: var(--bg); color: var(--ink)}
 button, input, textarea {font: inherit}
 button {cursor: pointer}
 button:disabled {cursor: not-allowed}
-button, a, input, textarea { -webkit-tap-highlight-color: transparent }
-:focus-visible {outline: 3px solid var(--green); outline-offset: 3px}
+button, a, input, textarea {-webkit-tap-highlight-color: transparent}
+:focus-visible {outline: 3px solid var(--accent); outline-offset: 2px}
 [hidden] {display: none !important}
-.skip-link {position: fixed; top: 8px; left: 8px; z-index: 50; padding: 12px 16px; background: var(--green); color: var(--on-green); border-radius: 6px; transform: translateY(-200%)}
-.skip-link:focus {transform: translateY(0)}
-.shell {display: flex; height: 100dvh; min-height: 300px}
-.sidebar {width: 268px; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; background: var(--sidebar); border-right: 1px solid var(--line); padding: 32px 18px 0}
-.brand {display: flex; align-items: center; gap: 12px; padding: 0 12px; color: var(--ink); text-decoration: none; font-size: 1.5rem; font-weight: 650; letter-spacing: -.9px; line-height: 1.2; flex-shrink: 0}
-.brand-caption {display: block; font-size: .75rem; font-weight: 600; letter-spacing: 2.8px; margin-top: 7px; color: var(--muted)}
-.workspace {display: flex; gap: 11px; align-items: center; margin: 28px 7px 24px; padding: 13px 9px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); flex-shrink: 0}
-.workspace-mark {display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; background: var(--green-soft); border: 1px solid var(--line); border-radius: 8px; color: var(--green); font-family: Georgia, serif; font-size: 1.25rem}
-.workspace strong, .identity strong {display: block; font-size: .875rem; font-weight: 600}
-.workspace div, .identity div {min-width: 0}
-.workspace div span {display: block; max-width: 156px; overflow-wrap: anywhere; margin-top: 4px; color: var(--muted); font-size: .75rem}
-.channel-heading {display: flex; align-items: center; justify-content: space-between; padding: 0 14px; margin-bottom: 12px; color: var(--muted); font-size: .75rem; flex-shrink: 0}
-.channel-heading h2 {margin: 0; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px}
-.channels {flex: 1; min-height: 60px; overflow: auto}
-.channel {width: calc(100% - 8px); min-height: 44px; display: flex; align-items: center; gap: 10px; border: 2px solid transparent; border-radius: 7px; padding: 10px; margin: 4px; background: transparent; color: var(--muted); text-align: left}
-.channel:hover {background: var(--hover)}
-.channel.active {background: var(--green-soft); color: var(--green); border-left-color: var(--green); font-weight: 600}
-.channel-hash {font-size: 1.25rem; font-weight: 400; color: var(--muted); line-height: 1}
-.channel.active .channel-hash {color: var(--green)}
-.channel-label {min-width: 0; overflow-wrap: anywhere; flex: 1; font-size: 1rem}
-.channel-badge {background: var(--green); color: var(--on-green); border-radius: 5px; padding: 2px 5px; min-width: 22px; text-align: center; font-size: .75rem}
-.channel-lock {width: 16px; height: 16px; flex-shrink: 0; color: var(--muted)}
 svg {fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round}
-.sidebar-note {display: flex; align-items: center; gap: 12px; padding: 24px 14px; color: var(--muted); flex-shrink: 0}
-.sidebar-note p {font-size: .875rem; line-height: 1.65; margin: 0}
-.signal-mark {width: 16px; height: 16px; flex-shrink: 0; border: 1px solid var(--muted); border-radius: 50%; position: relative}
-.signal-mark::before {content: ""; position: absolute; inset: 3px; border: 1px solid var(--muted); border-radius: 50%}
-.identity {display: flex; align-items: center; gap: 9px; border-top: 1px solid var(--line); margin: 0 -18px; padding: 18px 18px max(18px, env(safe-area-inset-bottom)); flex-shrink: 0}
-.identity div {flex: 1}
-.identity strong {overflow-wrap: anywhere}
-.identity div span {display: block; font-size: .75rem; color: var(--muted); margin-top: 4px}
-.avatar {width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; font-size: .875rem; font-weight: 600; color: var(--avatar-0-ink); background: var(--avatar-0-bg); letter-spacing: .5px}
-.profile-avatar {width: 36px; height: 36px; background: var(--profile-bg); color: var(--profile-ink)}
+.sr-only {position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap}
+.skip-link {position: fixed; top: 8px; left: 8px; z-index: 50; padding: 12px 16px; background: var(--accent); color: var(--on-accent); border-radius: 10px; transform: translateY(-200%)}
+.skip-link:focus {transform: translateY(0)}
+
+/* Layout */
+.shell {display: flex; height: 100dvh; min-height: 300px}
+.main {min-width: 0; flex: 1; display: flex; flex-direction: column; position: relative}
+
+/* Sidebar */
+.sidebar {width: 264px; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; background: var(--panel); border-right: 1px solid var(--line); padding: max(16px, env(safe-area-inset-top)) 12px 0}
+.brand {display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 8px; color: var(--ink); text-decoration: none; font-size: 1.0625rem; font-weight: 650; letter-spacing: -.01em; flex-shrink: 0}
+.brand img {border-radius: 9px}
+.channel-heading {display: flex; align-items: center; justify-content: space-between; padding: 0 12px; margin: 20px 0 6px; color: var(--muted); font-size: .8125rem; font-weight: 600; flex-shrink: 0}
+.channel-heading h2 {margin: 0; font-size: inherit; font-weight: inherit}
+.channel-heading span {font-variant-numeric: tabular-nums}
+.channels {flex: 1; min-height: 60px; overflow: auto; padding: 0 0 8px}
+.channel {width: 100%; min-height: 44px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 10px; padding: 8px 12px; margin: 0 0 2px; background: transparent; color: var(--ink); text-align: left}
+.channel:hover {background: var(--hover)}
+.channel.active {background: var(--accent-soft); font-weight: 600}
+.channel-hash {color: var(--muted); font-size: 1.125rem; line-height: 1; width: .9em; text-align: center}
+.channel.active .channel-hash {color: var(--accent)}
+.channel-label {min-width: 0; overflow-wrap: anywhere; flex: 1; font-size: .9375rem}
+.channel-badge {background: var(--accent); color: var(--on-accent); border-radius: 999px; padding: 1px 7px; min-width: 22px; text-align: center; font-size: .75rem; font-weight: 600; font-variant-numeric: tabular-nums}
+.channel-lock {width: 16px; height: 16px; flex-shrink: 0; color: var(--muted)}
+.identity {display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line); margin: 0 -12px; padding: 12px 12px max(12px, env(safe-area-inset-bottom)); flex-shrink: 0}
+.identity div {flex: 1; min-width: 0}
+.identity strong {display: block; font-size: .875rem; font-weight: 600; overflow-wrap: anywhere}
+.identity div span {display: block; font-size: .75rem; color: var(--muted); overflow-wrap: anywhere}
+.avatar {width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; font-size: .8125rem; font-weight: 650; color: var(--avatar-0-ink); background: var(--avatar-0-bg)}
+.profile-avatar {background: var(--profile-bg); color: var(--profile-ink)}
 .swatch-0 {color: var(--avatar-0-ink); background: var(--avatar-0-bg)}
 .swatch-1 {color: var(--avatar-1-ink); background: var(--avatar-1-bg)}
 .swatch-2 {color: var(--avatar-2-ink); background: var(--avatar-2-bg)}
 .swatch-3 {color: var(--avatar-3-ink); background: var(--avatar-3-bg)}
 .swatch-4 {color: var(--avatar-4-ink); background: var(--avatar-4-bg)}
 .swatch-5 {color: var(--avatar-5-ink); background: var(--avatar-5-bg)}
-.icon-button {width: 44px; height: 44px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); display: grid; place-items: center; flex-shrink: 0; font-size: 1.75rem}
-.icon-button:hover {background: var(--hover); color: var(--green)}
-.icon-button svg {width: 19px; height: 19px}
-.main {min-width: 0; flex: 1; display: flex; flex-direction: column; position: relative}
-.room-header {display: flex; align-items: center; gap: 14px; padding: 23px 32px; border-bottom: 1px solid var(--line); flex-shrink: 0; min-height: 85px}
-.header-hash {font-size: 29px; color: #a7b29f; font-weight: 300}
+
+/* Buttons */
+.icon-button {width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--muted); display: grid; place-items: center; flex-shrink: 0; font-size: 1.75rem; line-height: 1}
+.icon-button:hover {background: var(--hover); color: var(--ink)}
+.icon-button svg {width: 20px; height: 20px}
+.quiet-button {min-height: 44px; border: 0; background: transparent; color: var(--accent); font-size: .875rem; padding: 10px 12px; border-radius: 10px; font-weight: 550}
+.quiet-button:hover {background: var(--accent-soft)}
+.primary-button {display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; border: 0; border-radius: 12px; padding: 12px 16px; background: var(--accent); color: var(--on-accent); font-weight: 600; margin-top: 20px; font-size: 1rem}
+.primary-button:hover:not(:disabled) {background: var(--accent-hover)}
+.primary-button:disabled {opacity: .65}
+.danger-button {width: 100%; min-height: 44px; border: 1px solid var(--error); background: var(--danger-soft); color: var(--error); border-radius: 12px; padding: 11px; margin-top: 14px; font-size: .875rem; font-weight: 550}
+
+/* Room header */
+.room-header {display: flex; align-items: center; gap: 12px; padding: max(10px, env(safe-area-inset-top)) 16px 10px 24px; border-bottom: 1px solid var(--line); flex-shrink: 0; min-height: 68px}
 .room-title {flex: 1; min-width: 0}
-.room-title h1 {margin: 0; font-size: 1.125rem; font-weight: 650; letter-spacing: -.3px; overflow-wrap: anywhere}
-.room-title p {margin: 5px 0 0; font-size: .875rem; color: var(--muted)}
-.connection {display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .875rem; white-space: nowrap}
+.room-title h1 {margin: 0; font-size: 1.0625rem; font-weight: 650; letter-spacing: -.01em; overflow-wrap: anywhere; line-height: 1.3}
+.room-title p {margin: 1px 0 0; font-size: .8125rem; color: var(--muted)}
+.connection {display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: var(--panel); color: var(--muted); font-size: .8125rem; white-space: nowrap}
 .status-dot {width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--muted)}
-.connection.live .status-dot {background: var(--green)}
+.connection.live .status-dot {background: var(--accent)}
+.connection.offline {background: var(--warning-soft); color: var(--warning)}
 .connection.offline .status-dot {background: var(--warning)}
-.connection.offline {color: var(--warning)}
-.timeline {overflow: auto; flex: 1; min-height: 0; padding: 0 32px 20px; scroll-padding: 8px; overscroll-behavior: contain; scrollbar-color: var(--control-border) transparent}
-.timeline-top {display: flex; justify-content: center; padding: 12px 0}
-.quiet-button {min-height: 44px; border: 0; background: transparent; color: var(--green); font-size: .875rem; padding: 10px 12px; border-radius: 5px; font-weight: 500}
-.quiet-button:hover {background: var(--green-soft)}
-.conversation-intro {padding: 36px 0 26px}
-.intro-hash {width: 44px; height: 44px; background: var(--green-soft); color: var(--green); display: grid; place-items: center; border-radius: 13px; font-size: 1.75rem; margin-bottom: 14px}
-.conversation-intro h2 {font-weight: 600; letter-spacing: -.7px; font-size: 1.625rem; margin: 0 0 8px; overflow-wrap: anywhere}
-.conversation-intro p {font-size: 1rem; color: var(--muted); line-height: 1.6; max-width: 490px; margin: 0}
-.date-divider {display: flex; align-items: center; gap: 14px; margin: 24px 0 20px; color: var(--muted); font-size: .875rem; font-weight: 500}
-.date-divider::before, .date-divider::after {content: ""; height: 1px; background: var(--line); flex: 1}
-.message {display: flex; gap: 10px; padding: 6px 0}
-.message > .avatar {width: 28px; height: 28px; border-radius: 8px; font-size: .75rem; margin-top: 2px}
-.message-content {min-width: 0; flex: 1}
-.message-meta {display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 9px; margin-bottom: 1px}
+.notice {display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 24px; background: var(--warning-soft); border-bottom: 1px solid var(--line); color: var(--warning); font-size: .875rem; line-height: 1.5}
+
+/* Conversation */
+.timeline {overflow: auto; flex: 1; min-height: 0; padding: 0 24px 16px; scroll-padding: 8px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--control-border) transparent}
+.timeline-top {display: flex; justify-content: center; padding: 12px 0 0}
+.conversation-intro {padding: 20px 0 4px; max-width: 34rem}
+.conversation-intro h2 {font-weight: 650; letter-spacing: -.01em; font-size: 1.25rem; line-height: 1.3; margin: 0 0 4px; overflow-wrap: anywhere}
+.conversation-intro p {font-size: .9375rem; color: var(--muted); margin: 0}
+.date-divider {display: flex; justify-content: center; margin: 20px 0 8px}
+.date-divider span {padding: 2px 12px; border-radius: 999px; background: var(--panel); color: var(--muted); font-size: .75rem; font-weight: 600}
+.message {display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; position: relative}
+.message.cont {margin-top: 0}
+.message > .avatar {width: 32px; height: 32px; font-size: .75rem; margin-top: 2px}
+.message.cont > .avatar {visibility: hidden}
+.message-content {min-width: 0; max-width: min(36rem, 100% - 100px)}
+.message-meta {display: flex; align-items: baseline; gap: 8px; margin: 0 0 2px 14px}
+.message.cont .message-meta {position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); margin: 0}
 .message-name {font-size: .875rem; font-weight: 650; overflow-wrap: anywhere}
-.message time {font-size: .875rem; color: var(--muted); white-space: nowrap}
-.message-details {min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 3px; align-self: flex-start; padding: 4px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font-size: .75rem; font-variant-numeric: tabular-nums}
+.message time {font-size: .875rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums}
+.message-text, dialog .message-text {margin: 0; font-size: 1rem; line-height: 1.45; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere}
+.message .message-text {display: inline-block; max-width: 100%; padding: 8px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px var(--radius-bubble) var(--radius-bubble) 4px}
+.message:not(.cont) .message-text {border-top-left-radius: var(--radius-bubble)}
+.message.last .message-text {border-bottom-left-radius: var(--radius-bubble)}
+.message-details {min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 3px; align-self: flex-start; padding: 4px; margin-top: -2px; border: 0; border-radius: 12px; color: var(--muted); background: transparent; font-size: .75rem; font-variant-numeric: tabular-nums}
 .message-details svg {width: 16px; height: 16px; flex-shrink: 0}
-.message-details:hover {background: var(--hover)}
+.message-details:hover {background: var(--hover); color: var(--ink)}
 .message-details.attention {color: var(--warning)}
-.message-text, dialog .message-text {margin: 0; font-size: 1rem; line-height: 1.5; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere}
-.message.own .message-name {color: var(--green)}
-.message.highlight {animation: arrive .5s ease-out}
-@keyframes arrive {from {background: var(--green-soft)} to {background: transparent}}
-.composer-area {flex-shrink: 0; padding: 8px 32px max(20px, env(safe-area-inset-bottom)); background: var(--paper)}
-.composer {border: 1px solid var(--control-border); border-radius: 10px; background: var(--surface); overflow: hidden}
-.composer:focus-within {outline: 3px solid var(--green); outline-offset: 3px}
-.composer textarea {display: block; width: 100%; min-height: 4rem; max-height: 10rem; resize: vertical; border: 0; padding: 15px 16px 6px; background: transparent; color: var(--ink); line-height: 1.5; font-size: 1rem}
+@media (hover: hover) {
+  .message-details:not(.attention) svg {opacity: .55}
+  .message:hover .message-details svg, .message-details:focus-visible svg {opacity: 1}
+}
+.message.own {flex-direction: row-reverse}
+.message.own > .avatar {display: none}
+.message.own .message-content {text-align: right}
+.message.own .message-meta {justify-content: flex-end; margin: 0 14px 2px 0}
+.message.own .message-name {position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%)}
+.message.own .message-text {text-align: left; background: var(--bubble-out); color: var(--on-bubble-out); border-color: transparent; border-radius: var(--radius-bubble) 4px 4px var(--radius-bubble)}
+.message.own:not(.cont) .message-text {border-top-right-radius: var(--radius-bubble)}
+.message.own.last .message-text {border-bottom-right-radius: var(--radius-bubble)}
+.message.highlight .message-text {animation: arrive .5s ease-out}
+@keyframes arrive {from {box-shadow: 0 0 0 4px var(--accent-soft)} to {box-shadow: 0 0 0 4px transparent}}
+.new-messages {position: absolute; left: 50%; bottom: calc(var(--composer-h) + 12px); transform: translateX(-50%); z-index: 5; min-height: 44px; border: 1px solid var(--control-border); border-radius: 999px; padding: 8px 18px; background: var(--surface); color: var(--accent); font-size: .875rem; font-weight: 600; box-shadow: 0 4px 16px #0003}
+.new-messages:hover {background: var(--accent-soft)}
+
+/* Composer */
+.composer-area {flex-shrink: 0; padding: 8px 24px max(16px, env(safe-area-inset-bottom)); background: var(--bg)}
+.composer {display: flex; align-items: flex-end; gap: 8px; border: 1px solid var(--control-border); border-radius: 26px; background: var(--surface); padding: 4px 4px 4px 18px}
+.composer:focus-within {outline: 3px solid var(--accent); outline-offset: 2px}
+.composer textarea {display: block; flex: 1; min-width: 0; field-sizing: content; min-height: 44px; max-height: 9rem; resize: none; border: 0; padding: 10px 0; background: transparent; color: var(--ink); line-height: 1.45; font-size: 1rem}
 .composer textarea:focus-visible {outline: none}
 .composer textarea::placeholder {color: var(--muted); opacity: 1}
-.composer-actions {display: flex; align-items: center; gap: 10px; padding: 3px 9px 9px 16px}
-.composer-hint {font-size: .75rem; color: var(--muted); flex: 1; min-width: 0}
-.byte-count {color: var(--muted); font-size: .875rem; font-variant-numeric: tabular-nums; white-space: nowrap}
-.byte-count.over {color: var(--error); font-weight: 600}
-.send-button {background: var(--green); border: 0; color: var(--on-green); border-radius: 7px; width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center}
-.send-button:hover:not(:disabled) {background: var(--green-hover)}
-.send-button:disabled {background: var(--line); color: var(--muted)}
-.send-button svg {width: 19px; height: 19px}
-.composer-footer {display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .75rem; color: var(--muted); padding: 10px 1px 0}
-.new-messages {align-self: center; flex-shrink: 0; min-height: 44px; border: 1px solid var(--control-border); border-radius: 18px; padding: 8px 15px; margin: 4px; background: var(--green-soft); color: var(--green); font-size: .875rem}
-.notice {display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 28px; background: var(--warning-soft); border-bottom: 1px solid var(--line); color: var(--warning); font-size: .875rem; line-height: 1.5}
-.pending-post {display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--warning); font-size: .875rem; padding: 5px 0 10px}
-.compose-error {font-size: .875rem; color: var(--error); margin: 8px 1px}
-.join-panel {max-width: 420px; width: calc(100% - 48px); margin: auto; padding: 38px 0; overflow: auto}
-.join-symbol {width: 54px; height: 54px; background: var(--green-soft); color: var(--green); border-radius: 16px; display: grid; place-items: center; font-size: 2rem; margin-bottom: 22px}
-.eyebrow {font-size: .75rem; letter-spacing: 1.7px; color: var(--muted); font-weight: 650; margin-bottom: 12px}
-.join-panel h2 {font-size: 1.8125rem; letter-spacing: -1px; line-height: 1.2; font-weight: 600; margin: 0 0 12px; overflow-wrap: anywhere}
-.join-description {font-size: 1rem; color: var(--muted); line-height: 1.7; margin: 0 0 26px}
-form label {display: block; font-size: .875rem; color: var(--ink); font-weight: 550; margin: 16px 0 8px}
-input {width: 100%; min-height: 44px; border: 1px solid var(--control-border); border-radius: 7px; padding: 12px; background: var(--surface); color: var(--ink); min-width: 0; font-size: 1rem}
+.composer textarea {scrollbar-width: thin; scrollbar-color: var(--control-border) transparent}
+.composer-hint {display: block; padding: 6px 18px 0; font-size: .75rem; color: var(--muted)}
+.byte-count {align-self: center; color: var(--muted); font-size: .75rem; font-variant-numeric: tabular-nums; white-space: nowrap}
+.byte-count.quiet {position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%)}
+.byte-count.over {color: var(--error); font-weight: 650}
+.send-button {background: var(--accent); border: 0; color: var(--on-accent); border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; display: grid; place-items: center}
+.send-button:hover:not(:disabled) {background: var(--accent-hover)}
+.send-button:disabled {background: var(--panel); color: var(--muted)}
+.send-button svg {width: 20px; height: 20px}
+.compose-error:not([hidden]) + .composer-hint {display: none}
+.pending-post {display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--warning); font-size: .875rem; padding: 0 4px 6px}
+.compose-error {font-size: .8125rem; color: var(--error); margin: 6px 18px 0}
+
+/* Join */
+.join-panel {max-width: 26rem; width: calc(100% - 32px); margin: auto; padding: 28px; overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px}
+.join-panel h2 {font-size: 1.5rem; letter-spacing: -.02em; line-height: 1.25; font-weight: 650; margin: 0 0 8px; overflow-wrap: anywhere}
+.join-description {font-size: .9375rem; color: var(--muted); margin: 0 0 8px}
+form label {display: block; font-size: .875rem; color: var(--ink); font-weight: 550; margin: 16px 0 6px}
+input {width: 100%; min-height: 48px; border: 1px solid var(--control-border); border-radius: 12px; padding: 12px 14px; background: var(--bg); color: var(--ink); min-width: 0; font-size: 1rem}
 input::placeholder {color: var(--muted); opacity: 1}
-.primary-button {display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; border: 0; border-radius: 7px; padding: 12px 16px; background: var(--green); color: var(--on-green); font-weight: 550; margin-top: 20px; font-size: 1rem}
-.primary-button:hover:not(:disabled) {background: var(--green-hover)}
-.primary-button span {font-size: 1.0625rem}
-.privacy-note {font-size: .875rem; color: var(--muted); line-height: 1.7; margin-top: 18px}
+input[readonly] {background: var(--panel)}
+.privacy-note {font-size: .8125rem; color: var(--muted); margin: 16px 0 0}
 .form-error {font-size: .875rem; color: var(--error); line-height: 1.5}
-dialog {border: 1px solid var(--control-border); border-radius: 13px; padding: 25px; background: var(--paper); color: var(--ink); width: min(460px, calc(100% - 32px)); max-height: calc(100dvh - 40px); box-shadow: 0 12px 60px #0005}
-dialog::backdrop {background: #1b251c66}
-.dialog-heading {display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 18px}
-.dialog-heading h2 {margin: 0; font-size: 1.125rem; letter-spacing: -.3px}
-dialog p {font-size: .875rem; line-height: 1.65; color: var(--muted)}
+#link-device {display: block; margin: 10px auto 0}
+
+/* Dialogs */
+dialog {border: 1px solid var(--line); border-radius: 20px; padding: 24px; background: var(--surface); color: var(--ink); width: min(30rem, calc(100% - 32px)); max-height: calc(100dvh - 40px); box-shadow: 0 16px 60px #0006}
+dialog::backdrop {background: #0a121766}
+.dialog-heading {display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px}
+.dialog-heading h2 {margin: 0; font-size: 1.125rem; font-weight: 650; letter-spacing: -.01em}
+dialog p {font-size: .875rem; line-height: 1.6; color: var(--muted)}
 dl {margin: 0}
-dt {font-size: .75rem; color: var(--muted); margin: 18px 0 5px; text-transform: uppercase; letter-spacing: .8px}
+dt {font-size: .8125rem; font-weight: 600; color: var(--muted); margin: 16px 0 4px}
 dd {margin: 0; font-size: 1rem}
-.key {font-family: ui-monospace, monospace; font-size: .875rem; overflow-wrap: anywhere; line-height: 1.6}
-.danger-button {width: 100%; min-height: 44px; border: 1px solid var(--error); background: var(--danger-soft); color: var(--error); border-radius: 6px; padding: 11px; margin-top: 14px; font-size: .875rem}
-.sr-only {position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap}
+.key {font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .8125rem; overflow-wrap: anywhere; line-height: 1.6}
+#device-dialog a {overflow-wrap: anywhere}
+#device-link-url {display: block; min-height: 44px}
+#device-qr {display: block; max-width: 100%; height: auto; margin: 1rem auto; background: #fff; padding: 8px; border-radius: 12px}
+#account-devices {padding-left: 1rem}
+#account-devices li {margin-bottom: 1rem}
+#account-devices .key {display: block}
+
+/* Mobile drawer */
 .mobile-menu {display: none}
 .mobile-close {display: none}
-.scrim {position: fixed; inset: 0; z-index: 20; border: 0; background: #1f302355}
-@media (min-width: 1500px) {.timeline, .composer-area {padding-left: max(32px, calc((100% - 960px) / 2)); padding-right: max(32px, calc((100% - 960px) / 2))}}
-@media (max-width: 900px) {.sidebar {width: 228px; padding-left: 12px; padding-right: 12px}.identity {margin: 0 -12px; padding-left: 17px; padding-right: 17px}.desktop-hint {display: none}.room-header {padding: 20px 22px}.timeline, .composer-area {padding-left: 22px; padding-right: 22px}}
+.scrim {position: fixed; inset: 0; z-index: 20; border: 0; background: #0a121799}
+@media (min-width: 1500px) {.timeline, .composer-area {padding-left: max(24px, calc((100% - 880px) / 2)); padding-right: max(24px, calc((100% - 880px) / 2))}}
+@media (max-width: 900px) {.sidebar {width: 232px}.desktop-hint {display: none}.room-header {padding-left: 18px}.timeline, .composer-area {padding-left: 18px; padding-right: 18px}.notice {padding-left: 18px; padding-right: 18px}}
 @media (max-width: 640px) {
-  .sidebar {position: fixed; top: 0; bottom: 0; left: 0; width: 272px; z-index: 30; transform: translateX(-100%); transition: transform .18s ease}
+  .sidebar {position: fixed; top: 0; bottom: 0; left: 0; width: min(18rem, 86vw); z-index: 30; transform: translateX(-100%); transition: transform .18s ease}
   .sidebar.open {transform: translateX(0)}
   .mobile-menu {display: grid}
-  .mobile-close {display: grid; position: absolute; top: 24px; right: 12px}
-  .room-header {display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; min-height: 88px; gap: 2px 8px; padding: max(12px, env(safe-area-inset-top)) 12px 12px}
-  .header-hash {display: none}
-  .room-title {grid-column: 2; grid-row: 1}
+  .mobile-close {display: grid; position: absolute; top: max(16px, env(safe-area-inset-top)); right: 8px}
+  .room-header {padding: max(8px, env(safe-area-inset-top)) 8px 8px 4px; gap: 4px; min-height: 60px}
   .room-title p {display: none}
-  .connection {grid-column: 2; grid-row: 2}
-  .room-header > .icon-button:first-child {grid-column: 1; grid-row: 1 / span 2}
-  .room-header > .icon-button:last-child {grid-column: 3; grid-row: 1 / span 2}
-  .timeline {padding: 0 18px 18px}
-  .conversation-intro {padding-top: 24px}
-  .conversation-intro h2 {font-size: 1.5rem}
-  .message {gap: 10px}
-  .composer-area {padding: 6px 12px max(12px, env(safe-area-inset-bottom))}
-  .composer textarea {resize: none}
-  .composer-footer {justify-content: center}
-  .composer-actions {padding-left: 12px}
+  .connection {padding: 3px 10px}
+  .timeline {padding: 0 12px 12px}
+  .message {gap: 8px}
+  .message > .avatar {width: 28px; height: 28px}
+  .message-content {max-width: min(36rem, 100% - 92px)}
+  .composer-area {padding: 6px 10px max(10px, env(safe-area-inset-bottom))}
+  .composer-hint {display: none}
   .notice {padding: 7px 12px}
-  .join-panel {padding: 28px 0}
+  .join-panel {padding: 22px; width: calc(100% - 24px)}
   .pending-post {align-items: flex-start}
   .pending-post .quiet-button {white-space: nowrap}
 }
 @media (forced-colors: active) {
-  .channel.active {border-color: Highlight}
-  .composer, input, dialog {border-color: FieldText}
+  .channel.active {border: 2px solid Highlight}
+  .composer, input, dialog, .message .message-text {border-color: CanvasText}
   .composer:focus-within, :focus-visible {outline-color: Highlight}
   .send-button, .primary-button, .danger-button, .new-messages {border: 1px solid ButtonText}
 }
 @media (prefers-reduced-motion: reduce) {*, *::before, *::after {animation: none !important; transition: none !important; scroll-behavior: auto !important}}
-#device-dialog a {overflow-wrap: anywhere;}
-#device-link-url {display: block; min-height: 44px;}
-#device-qr {display: block; max-width: 100%; height: auto; margin: 1rem auto;}
-#account-devices {padding-left: 1rem;}
-#account-devices li {margin-bottom: 1rem;}
-#account-devices .key {display: block;}
+details summary {display: flex; align-items: center; min-height: 44px; color: var(--accent); font-size: .875rem; font-weight: 550; cursor: pointer}

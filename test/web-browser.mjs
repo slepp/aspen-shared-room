@@ -59,7 +59,7 @@ async function devtools(url) {
     call(method, params = {}, sessionId) {
       return new Promise((resolveCall, reject) => {
         const n = ++id;
-        const timer = setTimeout(() => {pending.delete(n); reject(new Error(`DevTools timeout: ${method}`));}, 15000);
+        const timer = setTimeout(() => {pending.delete(n); reject(new Error(`DevTools timeout: ${method}${params.expression ? ` ${String(params.expression).replace(/\s+/g, " ").slice(0, 160)}` : ""}`));}, 60000);
         pending.set(n, {resolve: resolveCall, reject, timer});
         socket.send(JSON.stringify({id: n, method, params, ...(sessionId ? {sessionId} : {})}));
       });
@@ -342,23 +342,23 @@ async function accessibility(page, label) {
 async function palette(page, scheme) {
   await page.call("Emulation.setEmulatedMedia", {features: [{name: "prefers-color-scheme", value: scheme}]});
   const values = await page.evaluate(`(() => {const s=getComputedStyle(document.documentElement); return Object.fromEntries(
-    ['paper','sidebar','surface','ink','muted','green','green-hover','on-green','green-soft','control-border','error','warning','warning-soft','danger-soft','profile-ink','profile-bg',
+    ['bg','panel','surface','ink','muted','accent','accent-hover','on-accent','accent-soft','bubble-out','on-bubble-out','control-border','error','warning','warning-soft','danger-soft','profile-ink','profile-bg',
       ...Array.from({length:6},(_,i)=>['avatar-'+i+'-ink','avatar-'+i+'-bg']).flat()]
       .map(n=>[n,s.getPropertyValue('--'+n).trim()]));})()`);
   assert.equal(await page.evaluate(`getComputedStyle(document.documentElement).colorScheme`), scheme);
   const pairs = [
-    ["ink", "paper"], ["ink", "surface"], ["ink", "sidebar"],
-    ["muted", "paper"], ["muted", "surface"], ["muted", "sidebar"], ["muted", "warning-soft"],
-    ["green", "paper"], ["green", "green-soft"], ["on-green", "green"], ["on-green", "green-hover"],
-    ["error", "paper"], ["error", "surface"], ["error", "danger-soft"],
-    ["warning", "paper"], ["warning", "warning-soft"], ["profile-ink", "profile-bg"],
+    ["ink", "bg"], ["ink", "surface"], ["ink", "panel"],
+    ["muted", "bg"], ["muted", "surface"], ["muted", "panel"], ["muted", "warning-soft"],
+    ["accent", "bg"], ["accent", "accent-soft"], ["on-accent", "accent"], ["on-accent", "accent-hover"], ["on-bubble-out", "bubble-out"],
+    ["error", "bg"], ["error", "surface"], ["error", "danger-soft"],
+    ["warning", "bg"], ["warning", "warning-soft"], ["profile-ink", "profile-bg"],
     ...Array.from({length: 6}, (_, i) => [`avatar-${i}-ink`, `avatar-${i}-bg`]),
   ];
   for (const [foreground, background] of pairs)
     assert(contrast(values[foreground], values[background]) >= 4.5, `${scheme}: ${foreground}/${background} text contrast`);
-  for (const background of ["paper", "surface", "sidebar"]) {
+  for (const background of ["bg", "surface", "panel"]) {
     assert(contrast(values["control-border"], values[background]) >= 3, `${scheme}: control border/${background}`);
-    assert(contrast(values.green, values[background]) >= 3, `${scheme}: focus/${background}`);
+    assert(contrast(values.accent, values[background]) >= 3, `${scheme}: focus/${background}`);
   }
   return Math.min(...pairs.map(([a, b]) => contrast(values[a], values[b])));
 }

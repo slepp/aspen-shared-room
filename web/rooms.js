@@ -1,4 +1,4 @@
-import {authorName, bytes, initials, mergeMessages, mergeProfiles, messageBody, postBytes, radioDeliveryIndicator, radioDeliveryLabel, validName} from "./model.js";
+import {authorName, bytes, dayLabel, initials, mergeMessages, mergeProfiles, messageBody, postBytes, radioDeliveryIndicator, radioDeliveryLabel, sameRun, validName} from "./model.js";
 import {loadDevice, signChallenge} from "./device.js";
 import {accountAuth} from "./auth.js";
 
@@ -107,6 +107,12 @@ function drawMessageDetails() {
   $("message-detail-source").textContent = message.webName ? "Web" : "Radio";
   $("message-detail-rf").textContent = radioDeliveryLabel(message.rf);
 }
+function fitComposer() {
+  const field = $("message-input");
+  if (CSS.supports("field-sizing", "content")) return;
+  field.style.height = "auto";
+  field.style.height = `${Math.min(field.scrollHeight, 144)}px`;
+}
 function drawMessages(scroll = false) {
   if (!active) return;
   const room = active;
@@ -115,17 +121,17 @@ function drawMessages(scroll = false) {
   const fragment = document.createDocumentFragment();
   let previousDay;
   const messages = [...room.messages.values()].sort((a, b) => a.seq - b.seq);
-  for (const message of messages) {
+  for (const [index, message] of messages.entries()) {
     const date = new Date(message.timestamp * 1000);
     const day = date.toDateString();
     if (day !== previousDay) {
       const divider = document.createElement("div"); divider.className = "date-divider";
-      divider.textContent = date.toLocaleDateString(undefined, {weekday: "short", month: "short", day: "numeric", year: "numeric"});
-      fragment.append(divider); previousDay = day;
+      const label = document.createElement("span"); label.textContent = dayLabel(date);
+      divider.append(label); fragment.append(divider); previousDay = day;
     }
     const author = authorName(message, room.profiles);
     const row = document.createElement("article");
-    row.className = `message${message.author === room.session?.author ? " own" : ""}`;
+    row.className = `message${message.author === room.session?.author ? " own" : ""}${sameRun(messages[index - 1], message) ? " cont" : ""}${sameRun(message, messages[index + 1]) ? "" : " last"}`;
     row.dataset.seq = String(message.seq);
     const avatar = document.createElement("span");
     avatar.className = `avatar swatch-${parseInt(message.author.slice(0, 2), 16) % 6}`;
@@ -168,8 +174,8 @@ function drawMessages(scroll = false) {
   $("messages").replaceChildren(fragment);
   if (focusedSeq) $("messages").querySelector(`.message-details[data-seq="${focusedSeq}"]`)?.focus({preventScroll: true});
   if (messageDetails?.room === room) drawMessageDetails();
-  $("intro-title").textContent = `Welcome to ${room.name}.`;
-  $("intro-text").textContent = messages.length ? "The shared conversation, from web and radio participants." : "You're connected. Send the first message or wait for someone on the mesh.";
+  $("intro-title").textContent = room.name;
+  $("intro-text").textContent = messages.length ? "Messages from the web and from mesh radios." : "No messages yet. Send the first one or wait for someone on the mesh.";
   $("load-older").hidden = !room.hasEarlier;
   if (scroll || wasBottom) bottom();
 }
@@ -318,13 +324,13 @@ function showRoom() {
   if (!active) return;
   const room = active, joined = !!room.session;
   $("room-name").textContent = room.name;
-  $("room-subtitle").textContent = joined ? "A shared conversation across IP and mesh." :
+  $("room-subtitle").textContent = joined ? "Shared with mesh radios" :
     accountMode ? "Sign in with your room account." : "Join with the room password.";
   $("join-panel").hidden = joined;
   $("timeline").hidden = !joined;
   $("composer-area").hidden = !joined;
   $("room-info").disabled = false;
-  $("join-title").textContent = auth?.enrolling ? "Register your Aspen passkey." : `Join ${room.name}.`;
+  $("join-title").textContent = auth?.enrolling ? "Register your Aspen passkey" : `Join ${room.name}`;
   $("display-name").value = name;
   $("account-username").value = auth?.username ?? read("username", "");
   $("room-password").value = "";
@@ -332,7 +338,7 @@ function showRoom() {
   $("message-input").value = room.draft;
   $("message-input").placeholder = `Message ${room.name}`;
   status(room, room.status, room.statusText);
-  updateComposer();
+  updateComposer(); fitComposer();
   if (joined) drawMessages(true);
 }
 async function select(room) {
@@ -355,6 +361,7 @@ function updateComposer() {
   const used = postBytes(active.session.name, $("message-input").value);
   $("byte-count").textContent = `${used} / ${MAX_BYTES} bytes`;
   $("byte-count").classList.toggle("over", used > MAX_BYTES);
+  $("byte-count").classList.toggle("quiet", used <= MAX_BYTES - 50);
   $("message-input").setAttribute("aria-invalid", String(used > MAX_BYTES));
   $("compose-error").hidden = used <= MAX_BYTES;
   $("compose-form").setAttribute("aria-busy", String(!!active.sending));
@@ -380,7 +387,7 @@ async function transmit(room) {
     room.outbox = null; room.draft = "";
     save(`draft.${room.id}`, "");
     if (room === active) {
-      $("message-input").value = ""; bottom();
+      $("message-input").value = ""; fitComposer(); bottom();
       $("message-announcement").textContent = `Message saved to ${room.name}.`;
     }
   } catch (error) {
@@ -540,7 +547,7 @@ $("message-input").addEventListener("input", () => {
   active.draft = $("message-input").value;
   try {save(`draft.${active.id}`, active.draft);}
   catch (error) {report(new Error(`Draft could not be saved: ${error.message}`));}
-  updateComposer();
+  updateComposer(); fitComposer();
 });
 $("message-input").addEventListener("keydown", event => {
   if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {event.preventDefault(); $("compose-form").requestSubmit();}
@@ -561,6 +568,8 @@ $("load-older").addEventListener("click", async () => {
   finally {$("load-older").disabled = false;}
 });
 $("new-messages").addEventListener("click", bottom);
+new ResizeObserver(([entry]) => document.documentElement.style.setProperty("--composer-h", `${Math.ceil(entry.target.getBoundingClientRect().height)}px`))
+  .observe($("composer-area"));
 $("timeline").addEventListener("scroll", () => {if (nearBottom()) $("new-messages").hidden = true;});
 $("mobile-menu").addEventListener("click", () => menu(!$("sidebar").classList.contains("open")));
 $("close-channels").addEventListener("click", () => menu(false));

@@ -109,9 +109,9 @@ sessions can therefore leave the same waiting/paused counts on many messages.
 Browser catch-up instead uses sequence numbers in the current page and reloads
 stored room history after reconnecting; it does not report what a person read.
 
-Joined channels remain connected while you switch between them. Badges count
-new messages arriving in another channel during this page session. Reopening
-the site restores its selected channel and login cookies, then catches up from
+Joined rooms remain connected while you switch between them. Badges count
+new messages arriving in another room during this page session. Reopening
+the site restores its selected room and login cookies, then catches up from
 the shared history. Earlier messages load in pages of 100. `HISTORY_LIMIT`
 applies to both browser history and radio catch-up.
 
