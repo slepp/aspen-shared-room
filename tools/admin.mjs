@@ -10,6 +10,7 @@ const usage = `Usage: node tools/admin.mjs [--url ORIGIN] [--token-stdin] COMMAN
   rooms [--offset N]                   list hosted rooms
   disable|enable ALIAS                 stop or resume a room
   delete ALIAS --yes                   remove a room and its data
+  show|hide ALIAS                      list a room on the web sign-in page, or remove it from the page
   codes [--offset N]                   list codes (hash prefix only)
   revoke-code H                        revoke the code whose hash starts with H (8 hex or more)
   ban NODE [--until UNIX] | unban NODE block a node key (64 hex)
@@ -64,13 +65,18 @@ async function main() {
     }
     case "rooms": {
       const j = await send("/v1/admin/rooms", {offset});
-      for (const r of j.rooms) console.log(`${r.alias}  ${r.state}  created ${when(r.created)}  active ${when(r.last_active)}  owner ${r.owner}  ${JSON.stringify(r.name)}`);
+      for (const r of j.rooms) console.log(`${r.alias}  ${r.state}  created ${when(r.created)}  active ${when(r.last_active)}  owner ${r.owner}  ${r.listed ? "listed" : "unlisted"}  ${JSON.stringify(r.name)}`);
       if (j.next !== null) console.log(`More: --offset ${j.next}`);
       break;
     }
     case "disable": case "enable": {
       await send("/v1/admin/room", {alias: alias(args[0]), action: command});
       console.log(`Room ${command}d.`);
+      break;
+    }
+    case "show": case "hide": {
+      await send("/v1/admin/web", {alias: alias(args[0]), action: command});
+      console.log(command === "show" ? "Room listed on the web sign-in page." : "Room removed from the web sign-in page.");
       break;
     }
     case "delete": {

@@ -30,6 +30,25 @@ test("account tool hashes passwords, saves private files and supports account re
   } finally {await rm(root, {recursive: true, force: true});}
 });
 
+test("granting and removing rooms keeps the account's password record", async () => {
+  const root = await mkdtemp(join(tmpdir(), "aspen-grants-")), path = join(root, "users.json"), hosted = "r" + "a".repeat(29);
+  try {
+    await main(["--file", path, "--username", "alice", "--name", "Alice", "--aliases", "A", "--passkey"]);
+    const before = validateUsers(JSON.parse(await readFile(path, "utf8"))).alice;
+    await main(["--file", path, "--username", "alice", "--grant", hosted]);
+    let after = validateUsers(JSON.parse(await readFile(path, "utf8"))).alice;
+    assert.deepEqual(after.aliases, ["A", hosted]);
+    assert.equal(after.hash, before.hash); assert.equal(after.salt, before.salt);
+    await main(["--file", path, "--username", "alice", "--grant", hosted + ",B", "--ungrant", "A"]);
+    after = validateUsers(JSON.parse(await readFile(path, "utf8"))).alice;
+    assert.deepEqual(after.aliases, [hosted, "B"]);
+    await assert.rejects(main(["--file", path, "--username", "alice", "--ungrant", hosted + ",B"]), /at least one room/);
+    await assert.rejects(main(["--file", path, "--username", "alice", "--grant", "C", "--name", "Other"]), /on their own/);
+    await assert.rejects(main(["--file", path, "--username", "nobody", "--grant", "C"]), /does not exist/);
+    assert.deepEqual(validateUsers(JSON.parse(await readFile(path, "utf8"))).alice.aliases, [hosted, "B"]);
+  } finally {await rm(root, {recursive: true, force: true});}
+});
+
 test("passkey accounts and first-passkey enrollment links stay private and bounded", async () => {
   const root = await mkdtemp(join(tmpdir(), "aspen-passkeys-")), usersPath = join(root, "users.json"),
     enrollments = join(root, "enrollments.json"), link = join(root, "link.txt"), origin = "https://aspen.example";

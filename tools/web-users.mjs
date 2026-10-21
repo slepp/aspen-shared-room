@@ -109,6 +109,7 @@ export async function main(args) {
   const {values} = parseArgs({args, options: {
     file: {type: "string"}, username: {type: "string"}, name: {type: "string"}, aliases: {type: "string"},
     "password-file": {type: "string"}, passkey: {type: "boolean"}, remove: {type: "boolean"}, upload: {type: "boolean"}, account: {type: "string"},
+    grant: {type: "string"}, ungrant: {type: "string"},
   }});
   if (!values.file) throw Error("Use --file PRIVATE_ACCOUNT_JSON and --username USER, or --upload --account ACCOUNT_ID");
   const path = resolve(values.file), parent = dirname(path);
@@ -124,6 +125,14 @@ export async function main(args) {
     if (values.remove) {
       if (!Object.hasOwn(users, values.username)) throw Error("Account does not exist in the private file");
       delete users[values.username];
+    } else if (values.grant || values.ungrant) {
+      // Room access changes keep the password record and passkeys; the account signs in again once.
+      if (!Object.hasOwn(users, values.username)) throw Error("Account does not exist in the private file");
+      if (values.name || values.aliases || values.passkey || values["password-file"]) throw Error("Use --grant and --ungrant on their own");
+      const user = users[values.username], drop = new Set((values.ungrant ?? "").split(",").filter(Boolean));
+      const add = (values.grant ?? "").split(",").filter(Boolean);
+      user.aliases = [...new Set([...user.aliases.filter(alias => !drop.has(alias)), ...add])];
+      if (!user.aliases.length) throw Error("Account must keep at least one room; use --remove to delete it");
     } else {
       if (!values.name || !values.aliases) throw Error("Creating an account requires --name and --aliases ALIAS[,ALIAS]");
       let password;
