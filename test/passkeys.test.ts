@@ -5,6 +5,7 @@ import {credential} from "../src/config";
 import {auth, authenticator, proof, type AuthChallenge} from "./passkey-helpers";
 import {fixture} from "./native-helpers";
 import {webRequest, origin} from "./web-helpers";
+import {control, createRoom, nodeA} from "./registry-helpers";
 
 const bindings = env as Env;
 const authority = () => bindings.ACCOUNTS.getByName("accounts");
@@ -173,4 +174,39 @@ it("takes enrollment tokens once under concurrent requests without registering t
     }
   }
   expect(await credential("aa".repeat(32))).not.toBe("aa".repeat(32));
+});
+
+it("signs a passkey account in to a hosted room only after the operator grants it", async () => {
+  const room = await createRoom(nodeA, "Hosted passkey room");
+  const alice = await register(), bob = await register("bob", fixture.reader);
+  const hostedTicket = (cookie: string, publicKey: string) => auth("room-ticket", {alias: room.alias, publicKey}, cookie);
+  // Without a grant the account service refuses a ticket for the hosted alias.
+  expect((await hostedTicket(alice.cookie, fixture.author.publicKey)).status).toBe(403);
+  // Granting updates WEB_USERS; the account service and the hosted room read the new record.
+  const users = JSON.parse(bindings.WEB_USERS!);
+  users.alice.aliases = [...users.alice.aliases, room.alias];
+  const patch = (instance: any) => {instance.env = {...instance.env, WEB_USERS: JSON.stringify(users)};};
+  await runInDurableObject(authority(), patch);
+  await runInDurableObject(bindings.ROOMS.getByName("rt-" + room.alias), patch);
+  // The grant changes the account record, so the earlier account session ends and the device signs in again.
+  expect((await auth("session", undefined, alice.cookie)).status).toBe(401);
+  const login = await auth("device-login", proof(await challenge("device-login", fixture.author), fixture.author));
+  const cookie = (await json<{username: string}>(login.clone())).username === "alice" ? login.headers.get("Set-Cookie")!.split(";")[0] : "";
+  const granted = await json<{ticket: string}>(await hostedTicket(cookie, fixture.author.publicKey));
+  const session = await webRequest(room.alias, "login", undefined, granted);
+  expect(await json(session.clone())).toMatchObject({author: fixture.author.publicKey, username: "alice", name: "Alice"});
+  const roomCookie = session.headers.get("Set-Cookie")!.split(";")[0];
+  const posted = await webRequest(room.alias, "posts", roomCookie, {id: crypto.randomUUID(), text: "hello from the web"});
+  expect(posted.status, await posted.clone().text()).toBe(200);
+  const history = await json<{messages: Array<{text: string}>}>(await webRequest(room.alias, "history", roomCookie));
+  expect(history.messages.map(m => m.text)).toEqual(["Alice: hello from the web"]);
+  // A ticket is single use, and an account without the grant stays out.
+  expect((await webRequest(room.alias, "login", undefined, granted)).status).toBe(401);
+  expect((await hostedTicket(bob.cookie, fixture.reader.publicKey)).status).toBe(403);
+  // Removing the grant ends the room session.
+  users.alice.aliases = users.alice.aliases.filter((a: string) => a !== room.alias);
+  await runInDurableObject(authority(), patch);
+  await runInDurableObject(bindings.ROOMS.getByName("rt-" + room.alias), patch);
+  expect((await webRequest(room.alias, "session", roomCookie)).status).toBe(401);
+  expect((await control(room.alias, room.token, {op: "nodes"})).status).toBe(200);
 });

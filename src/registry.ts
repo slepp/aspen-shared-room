@@ -21,10 +21,11 @@ export type ClaimResult =
   | {k: "replay"; alias: string; role: number}
   | {k: "recover"; alias: string}
   | {k: "err"; e: string; retryAfter?: number};
-export interface AdminRoom {alias: string; name: string | null; state: string; created: number; last_active: number; owner: string}
+export interface AdminRoom {alias: string; name: string | null; state: string; created: number; last_active: number; owner: string; listed: boolean}
 export interface AdminCode {h: string; kind: string; alias: string | null; issuer: string; expires: number; state: string}
 export interface AuditRow {id: number; ts: number; actor: string; action: string; target: string; result: string}
-export interface RoomRow {alias: string; name: string | null; state: string; created: number; last_active: number; owner_node: string}
+export interface RoomRow {alias: string; name: string | null; state: string; created: number; last_active: number; owner_node: string; listed?: number}
+export interface ListedRoom {alias: string; name: string; publicKey: string}
 
 export class Registry extends DurableObject<Env> {
   private sql: SqlStorage;
@@ -47,6 +48,9 @@ export class Registry extends DurableObject<Env> {
       CREATE INDEX IF NOT EXISTS members_alias ON members(alias);
       CREATE INDEX IF NOT EXISTS rooms_owner ON rooms(owner_node);
     `);
+    // Additive: the operator's web listing flag and the public key shown with it.
+    if (!this.rows<{name: string}>("PRAGMA table_info(rooms)").some(c => c.name === "listed"))
+      {this.sql.exec("ALTER TABLE rooms ADD COLUMN listed INTEGER DEFAULT 0"); this.sql.exec("ALTER TABLE rooms ADD COLUMN listed_pub TEXT");}
   }
 
   private rows<T>(query: string, ...params: SqlStorageValue[]): T[] {return this.sql.exec(query, ...params).toArray() as T[];}
@@ -277,9 +281,20 @@ export class Registry extends DurableObject<Env> {
 
   // Operator API ----------------------------------------------------------
   adminRooms(offset: number): {rooms: AdminRoom[]; next: number | null} {
-    const rows = this.rows<RoomRow>("SELECT alias, name, state, created, last_active, owner_node FROM rooms ORDER BY created, alias LIMIT 21 OFFSET ?", offset);
+    const rows = this.rows<RoomRow>("SELECT alias, name, state, created, last_active, owner_node, listed FROM rooms ORDER BY created, alias LIMIT 21 OFFSET ?", offset);
     return {rooms: rows.slice(0, 20).map(r => ({alias: r.alias, name: r.name, state: r.state, created: r.created,
-      last_active: r.last_active, owner: r.owner_node.slice(0, 8)})), next: rows.length > 20 ? offset + 20 : null};
+      last_active: r.last_active, owner: r.owner_node.slice(0, 8), listed: !!r.listed})), next: rows.length > 20 ? offset + 20 : null};
+  }
+  /** Lists or unlists a room on the web sign-in page. A listing keeps the room's public key so a page load never wakes the room. */
+  setListed(alias: string, publicKey: string | null): boolean {
+    const r = this.sql.exec("UPDATE rooms SET listed=?, listed_pub=? WHERE alias=? AND state IN ('active', 'disabled')",
+      publicKey ? 1 : 0, publicKey, alias);
+    return r.rowsWritten > 0;
+  }
+  listedRooms(): ListedRoom[] {
+    return this.rows<{alias: string; name: string; listed_pub: string}>(
+      "SELECT alias, name, listed_pub FROM rooms WHERE listed=1 AND state='active' AND name IS NOT NULL AND listed_pub IS NOT NULL ORDER BY created, alias LIMIT 50")
+      .map(r => ({alias: r.alias, name: r.name, publicKey: r.listed_pub}));
   }
   adminCodes(offset: number): {codes: AdminCode[]; next: number | null} {
     const rows = this.rows<{hash: string; kind: string; alias: string | null; issuer: string; expires: number; state: string}>(

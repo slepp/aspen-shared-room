@@ -809,7 +809,7 @@ export class Room extends DurableObject<Env> {
     const users = webUsers(this.env);
     if (!found || found.expires <= Math.floor(Date.now() / 1000) || found.author !== session.author ||
         (users === undefined ? !!found.username || found.credential !== await webCredential(config) :
-          !found.username || found.credential !== await accountCredential(this.env, session.alias, found.username)))
+          !found.username || found.credential !== await accountCredential(this.env, session.alias, found.username, config)))
       fail(401, "Room access expired; sign in again");
     if (passkeyMode(this.env) && found.username &&
         !await this.env.ACCOUNTS.getByName("accounts").deviceAllowed(found.username, found.author))
@@ -869,7 +869,7 @@ export class Room extends DurableObject<Env> {
         if (owner && owner !== account.username) fail(409, "This device key belongs to another account");
         user = account.username; author = account.publicKey; name = account.name;
         this.sql.exec("INSERT OR IGNORE INTO web_devices VALUES (?, ?)", author, user);
-        sessionCredential = await accountCredential(this.env, alias, user);
+        sessionCredential = await accountCredential(this.env, alias, user, config);
       } else if (users !== undefined) {
         user = username(body.username);
         const account = users[user], publicKey = hex(body.publicKey, "device public key", 32);
@@ -891,7 +891,7 @@ export class Room extends DurableObject<Env> {
         if (owner && owner.username !== user) fail(409, "This desktop key belongs to another account; use a separate browser profile or client state directory");
         this.sql.exec("INSERT OR IGNORE INTO web_devices VALUES (?, ?)", publicKey, user);
         author = publicKey; name = account.name;
-        sessionCredential = await accountCredential(this.env, alias, user);
+        sessionCredential = await accountCredential(this.env, alias, user, config);
       } else {
         const password = typeof body.password === "string" && wellFormed(body.password) && textEncoder.encode(body.password).length <= 256 ? body.password : undefined;
         if (password === undefined || !equalToken(password, config.password)) fail(403, "Incorrect room password");
@@ -918,6 +918,7 @@ export class Room extends DurableObject<Env> {
         }
       });
       await this.ctx.storage.sync();
+      if (this.hostedName) await this.hostedTouch();
       if (profile) await this.publishProfile(profile);
       return webResponse({author, name, username: session.username, expires: session.expires, maxPostBytes: POST_BYTES}, 200, sessionCookie(alias, cookie));
     }
@@ -963,6 +964,10 @@ export class Room extends DurableObject<Env> {
       const id = string(body.id, "post ID", 36);
       if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(id)) fail(400, "Use a UUID v4 post ID");
       const bodyText = webText(body.text, "message text", POST_BYTES);
+      if (this.hostedName) {
+        if (memoryLimit("wp:" + session.author, 30, 60)) fail(429, "Too many posts; wait a minute");
+        if (!await this.hostedBudget()) fail(403, "Room is disabled");
+      }
       const result = this.ctx.storage.transactionSync(() => {
         const existing = this.rows<Message>(`SELECT ${MESSAGE_COLUMNS} FROM messages WHERE seq=(SELECT seq FROM web_posts WHERE author=? AND request_id=?)`,
           session.author, id)[0];
@@ -977,6 +982,7 @@ export class Room extends DurableObject<Env> {
         return {message, duplicate: false};
       });
       await this.ctx.storage.sync();
+      if (this.hostedName) await this.hostedTouch();
       await this.pump();
       return webResponse({...result, message: (await this.webMessages([result.message]))[0]});
     }
@@ -1044,15 +1050,27 @@ export class Room extends DurableObject<Env> {
     return grants;
   }
 
-  /** Request gate for a hosted object: only the Worker's validated alias header reaches storage. */
-  private hostedGate(request: Request, browser: unknown): void {
-    const match = new URL(request.url).pathname.match(/^\/v1\/aliases\/([a-z2-7]{30})\/(socket|operations)$/);
-    if (browser || !match || !HOSTED_ALIAS.test(match[1]) || request.headers.get("x-aspen-hosted-alias") !== match[1] ||
+  /**
+   * Request gate for a hosted object: only the Worker's validated alias header reaches storage.
+   * Radio frontends arrive on /v1/aliases/ID/..., browsers and the terminal client on /v1/web/rooms/ID/...
+   */
+  private hostedGate(request: Request, browser: RegExpMatchArray | null): void {
+    const match = browser ?? new URL(request.url).pathname.match(/^\/v1\/aliases\/([a-z2-7]{30})\/(socket|operations)$/);
+    if (!match || !HOSTED_ALIAS.test(match[1]) || request.headers.get("x-aspen-hosted-alias") !== match[1] ||
         this.ctx.id.name !== "rt-" + match[1] || !this.hostedRow)
       fail(404, "Unknown room alias");
     // A deleted room answers 403 so a frontend that still holds a token marks the alias revoked.
     if (this.hostedRow.state === "deleted") fail(403, "Room was deleted");
+    if (browser && this.hostedRow.state === "disabled") fail(403, "Room is disabled");
     if (this.hostedFailed) fail(503, "Hosted room is not available");
+  }
+  /** Web activity keeps a room from aging out, at most once an hour like frontend activity. */
+  private async hostedTouch(): Promise<void> {
+    const row = this.hostedRow, now = sec();
+    if (!row || now - row.last_seen <= 3600) return;
+    this.sql.exec("UPDATE hosted_room SET last_seen=? WHERE id=1", now);
+    row.last_seen = now;
+    try {await this.registry().touchRoom(row.alias);} catch {/* the index is advisory */}
   }
   private async hostedAuthorize(request: Request, alias: string): Promise<Connection> {
     const client = request.headers.get("x-aspen-client") ?? "none";
@@ -1234,6 +1252,12 @@ export class Room extends DurableObject<Env> {
     if (this.hostedFailed) return {ok: false, e: "closed"};
     if (p.replay && !this.rows("SELECT 1 FROM hosted_frontend WHERE node=? AND revoked=0", p.node).length) return {ok: false, e: "revoked"};
     return {ok: true, grant: await this.issue(p.node, p.role)};
+  }
+  /** Public facts about a live hosted room, for the operator's web listing. */
+  async hostedInfo(alias: string): Promise<{name: string; publicKey: string; state: string} | null> {
+    this.requireHosted(alias);
+    const row = this.hostedRow;
+    return !row || row.state === "deleted" ? null : {name: row.name, publicKey: row.public_key, state: row.state};
   }
   async setState(alias: string, state: "active" | "disabled"): Promise<void> {
     this.requireHosted(alias);

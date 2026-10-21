@@ -1,4 +1,5 @@
-import {aliases, credential, equalToken, fail, wellFormed, type Env} from "./config";
+import {aliases, credential, equalToken, fail, wellFormed, type Alias, type Env} from "./config";
+import {HOSTED_ALIAS} from "./hosted";
 import {fromHex, toHex} from "./native-crypto";
 import {displayName} from "./web";
 
@@ -28,7 +29,7 @@ export function webUsers(env: Env): Record<string, WebUser> | undefined {
     if (Object.keys(user).sort().join(",") !== "aliases,hash,iterations,name,salt" ||
         !/^[a-f0-9]{32}$/.test(user.salt) || !/^[a-f0-9]{64}$/.test(user.hash) ||
         user.iterations !== 100000 || !Array.isArray(user.aliases) || !user.aliases.length ||
-        new Set(user.aliases).size !== user.aliases.length || user.aliases.some(a => !Object.hasOwn(rooms, a)))
+        new Set(user.aliases).size !== user.aliases.length || user.aliases.some(a => !Object.hasOwn(rooms, a) && !HOSTED_ALIAS.test(a)))
       fail(503, "Invalid WEB_USERS password hash or room grant");
     try {displayName(user.name);} catch {return fail(503, "Invalid WEB_USERS display name");}
     result[id] = user;
@@ -50,8 +51,9 @@ export function deviceChallenge(origin: string, alias: string, user: string, pub
   if (new TextEncoder().encode(message).length > 512) fail(400, "Room service origin exceeds the device signing limit");
   return message;
 }
-export async function accountCredential(env: Env, alias: string, user: string): Promise<string> {
+/** `config` is the room's own record when it is hosted; static rooms come from ALIASES. */
+export async function accountCredential(env: Env, alias: string, user: string, config?: Alias): Promise<string> {
   const account = webUsers(env)?.[user];
   if (!account?.aliases.includes(alias)) fail(401, "Account room access changed; sign in again");
-  return credential(JSON.stringify([aliases(env)[alias], user, account]));
+  return credential(JSON.stringify([config ?? aliases(env)[alias], user, account]));
 }

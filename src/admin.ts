@@ -69,6 +69,18 @@ export async function adminRoute(request: Request, env: Env, name: string): Prom
         await registry.adminNote(action, alias, "ok");
         return nodeJson({ok: 1});
       }
+      case "web": {
+        const alias = aliasOf(body.alias), action = body.action;
+        if (action !== "show" && action !== "hide") nodeFail("bad_request");
+        if (!await registry.roomInfo(alias)) nodeFail("not_found");
+        if (action === "show") {
+          const info = await roomOps.info(env, alias);
+          if (!info || info.state !== "active") nodeFail("not_found");
+          await registry.setListed(alias, info.publicKey);
+        } else await registry.setListed(alias, null);
+        await registry.adminNote("web-" + action, alias, "ok");
+        return nodeJson({ok: 1});
+      }
       case "codes": {
         const page = await registry.adminCodes(offsetOf(body));
         return nodeJson({ok: 1, codes: page.codes, next: page.next});

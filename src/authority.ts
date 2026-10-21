@@ -4,7 +4,9 @@ import {generateAuthenticationOptions, generateRegistrationOptions, verifyAuthen
   type WebAuthnCredential} from "@simplewebauthn/server";
 import {aliases, credential, errorResponse, fail, type Env} from "./config";
 import {username, webUsers} from "./accounts";
+import {HOSTED_ALIAS} from "./hosted";
 import {fromHex, toHex} from "./native-crypto";
+import {parseKek, validAliasId} from "./seal";
 import {sameOrigin, webBody, webResponse, WEB_SESSION_SECONDS} from "./web";
 
 export const ACCOUNT_DEVICE_PROTOCOL = "aspen-account.device.v1";
@@ -23,6 +25,13 @@ interface Link {
 }
 interface Ticket extends AccountSession {alias: string}
 interface Enrollment {username: string; grant: string; expires: number}
+
+/** A static room, or a hosted alias id that carries a valid tag. The room's own object checks that it exists. */
+async function roomKnown(env: Env, alias: string): Promise<boolean> {
+  if (Object.hasOwn(aliases(env), alias)) return true;
+  const kek = parseKek(env);
+  return !!kek && HOSTED_ALIAS.test(alias) && await validAliasId(kek, alias);
+}
 
 export function passkeyMode(env: Env): boolean {
   if (env.WEB_AUTH_MODE !== undefined && env.WEB_AUTH_MODE !== "passkey")
@@ -374,7 +383,7 @@ export class Accounts extends DurableObject<Env> {
     const session = await this.session(request);
     if (endpoint === "room-ticket") {
       const alias = typeof body.alias === "string" ? body.alias : "";
-      if (!Object.hasOwn(aliases(this.env), alias) || !this.account(session.username).aliases.includes(alias))
+      if (!await roomKnown(this.env, alias) || !this.account(session.username).aliases.includes(alias))
         fail(403, "Account does not have access to this room");
       if (body.publicKey !== session.publicKey) fail(403, "Room login belongs to a different device key");
       const token = random();

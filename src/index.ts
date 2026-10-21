@@ -15,9 +15,18 @@ function staticAlias(env: Env, alias: string): boolean {
   try {return Object.hasOwn(aliases(env), alias);} catch {return false;}
 }
 
+/** Rooms the operator lists for the web sign-in page. Best effort: a Registry failure never hides the static rooms. */
+async function listedHosted(env: Env): Promise<Array<{id: string; name: string; publicKey: string}>> {
+  if (!parseKek(env)) return [];
+  try {
+    return (await env.REGISTRY.getByName("registry").listedRooms()).map(r => ({id: r.alias, name: r.name, publicKey: r.publicKey}));
+  } catch {return [];}
+}
+
 /**
  * Hosted aliases are self-authenticating, so unauthenticated traffic never
  * reaches a Durable Object. Static aliases and any other id keep today's path.
+ * Radio frontends and browsers reach the same room object, so they share one history.
  */
 async function hostedSocket(request: Request, env: Env, alias: string): Promise<Response | undefined> {
   if (!HOSTED_ALIAS.test(alias) || staticAlias(env, alias)) return;
@@ -62,8 +71,8 @@ export default {
         return env.ACCOUNTS.getByName("accounts").fetch(request);
       }
       if (path === "/v1/web/rooms" && request.method === "GET") {
-        return webResponse({rooms: Object.entries(aliases(env)).map(([id, a]) =>
-          ({id, name: a.name, publicKey: a.publicKey})), maxPostBytes: POST_BYTES,
+        return webResponse({rooms: [...Object.entries(aliases(env)).map(([id, a]) =>
+          ({id, name: a.name, publicKey: a.publicKey})), ...await listedHosted(env)], maxPostBytes: POST_BYTES,
           loginMode: passkeyMode(env) ? "passkey" : webUsers(env) === undefined ? "room-password" : "account",
           deviceProtocol: DEVICE_PROTOCOL, accountDeviceProtocol: ACCOUNT_DEVICE_PROTOCOL,
           ...(passkeyMode(env) ? {authOrigin: env.PASSKEY_ORIGIN} : {})});
@@ -75,11 +84,9 @@ export default {
         return webResponse({error: "Unknown endpoint"}, 404);
       }
       const alias = match[1];
-      if (!browser) {
-        const hosted = await hostedSocket(request, env, alias);
-        if (hosted) return hosted;
-        await authorize(request, env, alias);
-      }
+      const hosted = await hostedSocket(request, env, alias);
+      if (hosted) return hosted;
+      if (!browser) await authorize(request, env, alias);
       const configured = aliases(env)[alias];
       if (!configured) fail(404, "Unknown room alias");
       return env.ROOMS.getByName(configured.backend).fetch(request);
